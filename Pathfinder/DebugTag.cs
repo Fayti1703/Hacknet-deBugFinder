@@ -37,6 +37,10 @@ namespace Pathfinder {
 		/**
 		 * Action Loading, logging to the log-spam <see cref="Hacknet.SerializableConditionalActionSet.Deserialize"/>
 		 */
-		ActionLoadDetailDetail
+		ActionLoadDetailDetail,
+		/**
+		 * Disable delay processing. <see cref="Hacknet.DelayableActionSystem.Update"/>
+		 */
+		DisableDelayProcessing
 	}
 }

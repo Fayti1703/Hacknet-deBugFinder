@@ -61,3 +61,7 @@ This tag logs information about condition and action loading,
 tracking the reader state every step of the deserialization 
 (except for the part covered by `ActionLoadDetail`).
 This, of course, **results in significant log spam** for any action file longer than a few lines.
+
+### DisableDelayProcessing
+This tag logs nothing. Instead, it prevents all (`Fast`)`DelayableActionSystem`s from updating. This includes
+`IRCDaemon`s, `DHSDaemon`s and `FastActionHost`s.

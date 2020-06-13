@@ -196,6 +196,16 @@ namespace Pathfinder {
 			}
 		}
 
+		[Patch("Hacknet.DelayableActionSystem.Update", flags: InjectFlags.ModifyReturn)]
+		public static bool onDebugHook_DAS_Update() {
+			return DebugLogger.isEnabled(DisableDelayProcessing);
+		}
+
+		[Patch("Hacknet.FastDelayableActionSystem.Update", flags: InjectFlags.ModifyReturn)]
+		public static bool onDebugHook_FDAS_Update() {
+			return DebugLogger.isEnabled(DisableDelayProcessing);
+		}
+
 		#region Game Integration
 
 		[Patch("Hacknet.ProgramRunner.ExecuteProgram", 13,
