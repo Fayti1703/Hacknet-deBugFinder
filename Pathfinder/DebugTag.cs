@@ -13,6 +13,14 @@ namespace Pathfinder {
 		/**
 		 * Mission Loading <see cref="Hacknet.ComputerLoader.readMission"/>
 		 */
-		MissionLoad
+		MissionLoad,
+		/**
+		 * Mission completion <see cref="Hacknet.ActiveMission.isComplete"/>
+		 */
+		MissionComplete,
+		/**
+		 * Email sender verification <see cref="Hacknet.MailServer.attemptCompleteMission"/>
+		 */
+		SenderVerify
 	}
 }

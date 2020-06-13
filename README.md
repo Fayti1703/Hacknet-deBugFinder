@@ -34,3 +34,15 @@ This tag logs all (successfully) loaded missions. The output format is as follow
 > Loaded Mission &lt;mission name&gt;<br>
 > startMission = &lt;missionStart function&gt; / &lt;missionStart value&gt;<br>
 > endMission = &lt;missionEnd function&gt; / &lt;missionEnd value&gt;
+
+### MissionComplete
+This tag logs unsuccessful mission completions caused by goals,
+and the specific goal type causing them to fail.
+Note that for missions with `activeCheck="true"`, a mission completion is attempted *every frame*, 
+which **may result in some significant log spam**. Use with caution.
+
+### SenderVerify
+This tag logs unsuccessful mission completions caused by sender verification.<br>
+Sender verification is a feature of `MailServer` that ensures only replies sent to 
+the appropriate sender of the mission triggers a mission completion attempt.
+

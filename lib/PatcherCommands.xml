@@ -8,5 +8,8 @@
 			<field name="titleColor" access="internal" />
 			<field name="titleFont" access="internal" />
 		</type>
+		<type name="MailServer">
+			<field name="emailData" access="internal" />
+		</type>
 	</namespace>
 </PatcherCommands>

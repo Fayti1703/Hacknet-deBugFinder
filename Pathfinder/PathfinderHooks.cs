@@ -1,8 +1,10 @@
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using Hacknet;
 using Hacknet.Effects;
 using Hacknet.Gui;
+using Hacknet.Mission;
 using Microsoft.Xna.Framework;
 using Pathfinder.Attribute;
 
@@ -44,6 +46,29 @@ namespace Pathfinder {
 				$"startMission = {mission.startFunctionName.formatForLog()} / {mission.startFunctionValue}");
 			DebugLogger.Log(MissionLoad,
 				$"endMission = {mission.endFunctionName.formatForLog()} / {mission.endFunctionValue}");
+		}
+
+		[Patch("Hacknet.ActiveMission.isComplete",
+			flags: InjectFlags.PassInvokingInstance | InjectFlags.PassParametersVal |
+			       InjectFlags.ModifyReturn)]
+		public static bool onDebugHookAM_isComplete(ActiveMission self, out bool ret, List<string> additionalDetails) {
+			ret = true;
+			foreach (MisisonGoal goal in self.goals.Where(goal => !goal.isComplete(additionalDetails))) {
+				DebugLogger.Log(MissionComplete, $"A {goal.GetType().Name} goal prevented mission completion.");
+				ret = false;
+				break;
+			}
+
+			return true;
+		}
+
+		[Patch("Hacknet.MailServer.attemptCompleteMission",
+			flags: InjectFlags.PassInvokingInstance | InjectFlags.PassParametersVal)]
+		public static void onDebugHookMS_attemptCompleteMission(MailServer self, ActiveMission mission) {
+			if (mission.ShouldIgnoreSenderVerification || mission.email.sender == self.emailData[1]) return;
+			DebugLogger.Log(SenderVerify, $"Mission '{mission.reloadGoalsSourceFile}' failed sender verification!");
+			DebugLogger.Log(SenderVerify, "email says: " + self.emailData[1]);
+			DebugLogger.Log(SenderVerify, "Mission says: " + mission.email.sender);
 		}
 
 		#region Game Integration
