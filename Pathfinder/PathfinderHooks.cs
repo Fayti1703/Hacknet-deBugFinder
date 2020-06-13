@@ -7,6 +7,7 @@ using Microsoft.Xna.Framework;
 using Pathfinder.Attribute;
 
 using static Pathfinder.Attribute.PatchAttribute;
+using static Pathfinder.DebugTag;
 
 namespace Pathfinder {
 	/// <summary>
@@ -14,6 +15,24 @@ namespace Pathfinder {
 	/// </summary>
 	/// Place all functions to be hooked into Hacknet here
 	public static class PathfinderHooks {
+
+		[Patch("Hacknet.Utils.AppendToErrorFile", flags: InjectFlags.PassParametersVal)]
+		public static void onDebugHook_appendToErrorFile(string text) {
+			DebugLogger.Log(HacknetError, text);
+		}
+
+		[Patch("Hacknet.OS.Draw", 320, flags: InjectFlags.PassLocals, localsID: new[] {1})]
+		public static void onDebugHook_osDrawCatch(ref Exception ex) {
+			DebugLogger.Log(HacknetError, Utils.GenerateReportFromException(ex));
+		}
+
+		[Patch("Hacknet.OS.Update", 800, flags: InjectFlags.PassLocals, localsID: new[] {4})]
+		public static void onDebugHook_osUpdateCatch(ref Exception ex) {
+			DebugLogger.Log(HacknetError, Utils.GenerateReportFromException(ex));
+		}
+
+		#region Game Integration
+
 		[Patch("Hacknet.ProgramRunner.ExecuteProgram", 13,
 			flags: InjectFlags.PassParametersVal | InjectFlags.ModifyReturn | InjectFlags.PassLocals,
 			localsID: new[] {1}
@@ -49,5 +68,7 @@ namespace Pathfinder {
 			TextItem.doFontLabel(new Vector2(180f, 105f), text, GuiData.smallfont, Color.Red * 0.8f, 600f, 26f);
 			return true;
 		}
+
+		#endregion
 	}
 }

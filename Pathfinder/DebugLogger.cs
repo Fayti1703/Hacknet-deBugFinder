@@ -8,7 +8,9 @@ using static Pathfinder.DebugTag;
 namespace Pathfinder {
 	public static class DebugLogger {
 		[NotNull]
-		private static readonly HashSet<DebugTag> enabledTags = new HashSet<DebugTag>();
+		private static readonly HashSet<DebugTag> enabledTags = new HashSet<DebugTag> {
+			HacknetError
+		};
 
 		public static bool isEnabled(DebugTag tag) {
 			return enabledTags.Contains(tag);

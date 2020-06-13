@@ -21,3 +21,7 @@ Two commands have been added to the in-game terminal:
 ## Debugging Tags
 
 An explaination of all debugging tags:
+
+### HacknetError
+This tag logs most errors caught by Hacknet, most notably the `Hacknet.Util.AppendToErrorFile` function.
+However, the exception catches in `Hacknet.OS:Draw` and `Hacknet.OS:Update` are also logged under this tag.
