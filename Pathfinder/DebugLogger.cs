@@ -38,7 +38,10 @@ namespace Pathfinder {
 
 		private static string normalizeTagName(string input) {
 			return string.Join("",
-				input.Split('_').Select(e => e.Substring(0, 1).ToUpperInvariant() + e.Substring(1)
+				input.Split(new[] {
+					'_'
+				}, StringSplitOptions.RemoveEmptyEntries).Select(
+					e => e.Substring(0, 1).ToUpperInvariant() + e.Substring(1)
 				)
 			);
 		}
@@ -81,11 +84,13 @@ namespace Pathfinder {
 		public static void HacknetInterface(string[] args) {
 			switch (args.Length) {
 				case 0: {
-					string stringTags = enabledTags.Count == 0 ? "<NONE>" : string.Join(",\n",
-						enabledTags.Partition(16).Select(
-							inner => string.Join(", ", inner)
-						)
-					);
+					string stringTags = enabledTags.Count == 0
+						? "<NONE>"
+						: string.Join(",\n",
+							enabledTags.Partition(16).Select(
+								inner => string.Join(", ", inner)
+							)
+						);
 					os.write("Enabled debug tags: " + stringTags);
 					break;
 				}
@@ -108,6 +113,7 @@ namespace Pathfinder {
 						if (tagName != args[0]) {
 							msg += $" (Normalized from your input of '{args[0]}')";
 						}
+
 						os.write(msg);
 						return;
 					}
