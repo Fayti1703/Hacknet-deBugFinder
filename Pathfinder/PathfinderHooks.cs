@@ -71,6 +71,29 @@ namespace Pathfinder {
 			DebugLogger.Log(SenderVerify, "Mission says: " + mission.email.sender);
 		}
 
+		[Patch("Hacknet.SCHasFlags.Check",
+			flags: InjectFlags.ModifyReturn | InjectFlags.PassInvokingInstance | InjectFlags.PassParametersVal)]
+		public static bool onDebugHookSCHF_Check(SCHasFlags self, out bool retVal, object os_obj) {
+			var os = (OS) os_obj;
+			if (string.IsNullOrWhiteSpace(self.requiredFlags)) {
+				DebugLogger.Log(HasFlags, "HasFlags SUCCEEDED: no flags required. lol.");
+				retVal = true;
+				return true;
+			}
+
+			string[] flags = self.requiredFlags.Split(Utils.commaDelim, StringSplitOptions.RemoveEmptyEntries);
+			DebugLogger.Log(HasFlags, "HasFlags checking against flags: " + string.Join(",", flags));
+			foreach (string flag in flags.Where(flag => !os.Flags.HasFlag(flag))) {
+				DebugLogger.Log(HasFlags, $"HasFlags FAILED: Flag {flag.formatForLog()} not present.");
+				retVal = false;
+				return true;
+			}
+
+			retVal = true;
+			DebugLogger.Log(HasFlags, "HasFlags SUCCEEDED. Running actions.");
+			return true;
+		}
+
 		#region Game Integration
 
 		[Patch("Hacknet.ProgramRunner.ExecuteProgram", 13,

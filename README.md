@@ -46,3 +46,6 @@ This tag logs unsuccessful mission completions caused by sender verification.<br
 Sender verification is a feature of `MailServer` that ensures only replies sent to 
 the appropriate sender of the mission triggers a mission completion attempt.
 
+### HasFlags
+This tag logs checking of the `HasFlags` condition, the result of that check, and which flag caused it to fail.<br>
+Note that condition checking is performed *every frame*, so this tag **results in significant log spam**.

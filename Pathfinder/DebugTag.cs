@@ -21,6 +21,10 @@ namespace Pathfinder {
 		/**
 		 * Email sender verification <see cref="Hacknet.MailServer.attemptCompleteMission"/>
 		 */
-		SenderVerify
+		SenderVerify,
+		/**
+		 * HasFlags checking <see cref="Hacknet.SCHasFlags"/>
+		 */
+		HasFlags
 	}
 }
