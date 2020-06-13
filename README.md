@@ -25,3 +25,6 @@ An explaination of all debugging tags:
 ### HacknetError
 This tag logs most errors caught by Hacknet, most notably the `Hacknet.Util.AppendToErrorFile` function.
 However, the exception catches in `Hacknet.OS:Draw` and `Hacknet.OS:Update` are also logged under this tag.
+
+### MissionFunction
+This tag logs all mission function runs.

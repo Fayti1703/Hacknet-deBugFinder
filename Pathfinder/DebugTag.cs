@@ -5,6 +5,10 @@ namespace Pathfinder {
 		/**
 		 * Intercepted Hacknet errors. This may come from a lot of places. <see cref="Hacknet.Utils.AppendToErrorFile" />
 		 */
-		HacknetError
+		HacknetError,
+		/**
+		 * Mission Function execution <see cref="Hacknet.MissionFunctions.runCommand"/>
+		 */
+		MissionFunction
 	}
 }

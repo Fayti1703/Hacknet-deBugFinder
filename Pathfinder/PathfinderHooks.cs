@@ -31,6 +31,11 @@ namespace Pathfinder {
 			DebugLogger.Log(HacknetError, Utils.GenerateReportFromException(ex));
 		}
 
+		[Patch("Hacknet.MissionFunctions.runCommand", flags: InjectFlags.PassParametersVal)]
+		public static void onDebugHook_runFunction(int value, string name) {
+			DebugLogger.Log(MissionFunction, $"Running Mission function '{name}' with val {value}");
+		}
+
 		#region Game Integration
 
 		[Patch("Hacknet.ProgramRunner.ExecuteProgram", 13,
