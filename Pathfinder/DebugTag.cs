@@ -25,6 +25,10 @@ namespace Pathfinder {
 		/**
 		 * HasFlags checking <see cref="Hacknet.SCHasFlags"/>
 		 */
-		HasFlags
+		HasFlags,
+		/**
+		 * Action Loading <see cref="Hacknet.RunnableConditionalActions.LoadIntoOS"/>
+		 */
+		ActionLoad
 	}
 }

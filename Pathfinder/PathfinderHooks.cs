@@ -94,6 +94,12 @@ namespace Pathfinder {
 			return true;
 		}
 
+		[Patch("Hacknet.RunnableConditionalActions.LoadIntoOS", flags: InjectFlags.PassParametersVal)]
+		public static void onDebugHookRCA_LoadIntoOS(string filepath, object OSobj) {
+			string truePath = LocalizedFileLoader.GetLocalizedFilepath(Utils.GetFileLoadPrefix() + filepath);
+			DebugLogger.Log(ActionLoad, $"Loading Conditional Actions File {truePath.formatForLog()} into OS.");
+		}
+
 		#region Game Integration
 
 		[Patch("Hacknet.ProgramRunner.ExecuteProgram", 13,
