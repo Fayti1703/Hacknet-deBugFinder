@@ -195,10 +195,10 @@ namespace PathfinderPatcher
                 catch(Exception ex)
                 {
                     HandleExeception("Failure during Pathfinder.dll's Patch Execution:", ex);
-                    gameAssembly?.Write("HacknetPathfinder.exe");
+                    gameAssembly.Write("HacknetPathfinder.exe");
                     return 1;
                 }
-            gameAssembly?.Write("HacknetPathfinder.exe");
+            gameAssembly.Write("HacknetPathfinder.exe");
             return 0;
         }
 
