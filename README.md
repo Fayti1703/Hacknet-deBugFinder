@@ -52,3 +52,12 @@ Note that condition checking is performed *every frame*, so this tag **results i
 
 ### ActionLoad
 This tag logs all action file loads. Only the file name itself is logged.
+
+### ActionLoadDetail
+This tag logs information about action loading, specifically the action elements themselves.
+
+### ActionLoadDetailDetail
+This tag logs information about condition and action loading, 
+tracking the reader state every step of the deserialization 
+(except for the part covered by `ActionLoadDetail`).
+This, of course, **results in significant log spam** for any action file longer than a few lines.

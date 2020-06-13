@@ -27,8 +27,16 @@ namespace Pathfinder {
 		 */
 		HasFlags,
 		/**
-		 * Action Loading <see cref="Hacknet.RunnableConditionalActions.LoadIntoOS"/>
+		 * Action Loading, basic logging <see cref="Hacknet.RunnableConditionalActions.LoadIntoOS"/>
 		 */
-		ActionLoad
+		ActionLoad,
+		/**
+		 * Action Loading, more detailed logging <see cref="Hacknet.SerializableAction.Deserialize"/>
+		 */
+		ActionLoadDetail,
+		/**
+		 * Action Loading, logging to the log-spam <see cref="Hacknet.SerializableConditionalActionSet.Deserialize"/>
+		 */
+		ActionLoadDetailDetail
 	}
 }

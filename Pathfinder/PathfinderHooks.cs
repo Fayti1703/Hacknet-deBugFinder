@@ -1,13 +1,14 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Xml;
 using Hacknet;
 using Hacknet.Effects;
 using Hacknet.Gui;
 using Hacknet.Mission;
 using Microsoft.Xna.Framework;
 using Pathfinder.Attribute;
-
+using Pathfinder.Util;
 using static Pathfinder.Attribute.PatchAttribute;
 using static Pathfinder.DebugTag;
 
@@ -98,6 +99,101 @@ namespace Pathfinder {
 		public static void onDebugHookRCA_LoadIntoOS(string filepath, object OSobj) {
 			string truePath = LocalizedFileLoader.GetLocalizedFilepath(Utils.GetFileLoadPrefix() + filepath);
 			DebugLogger.Log(ActionLoad, $"Loading Conditional Actions File {truePath.formatForLog()} into OS.");
+		}
+
+		[Patch("Hacknet.SerializableConditionalActionSet.Deserialize",
+			flags: InjectFlags.PassParametersRef | InjectFlags.ModifyReturn)]
+		public static bool onDebugHook_SCAS_Deserialize(
+			out SerializableConditionalActionSet retVal, ref XmlReader rdr
+		) {
+			static bool innerWhileCondition(XmlReader reader, string endKeyName) {
+				DebugLogger.Log(ActionLoadDetailDetail, $"Looping over elements: {reader.toLogString()} / endKeyName = {endKeyName}");
+				if (reader.EOF) {
+					DebugLogger.Log(ActionLoadDetailDetail, "Reader hit EOF.");
+					return false;
+				}
+				if (reader.Name != endKeyName) return true;
+				if (reader.IsStartElement()) return true;
+				DebugLogger.Log(ActionLoadDetailDetail, "Found end key name.");
+				return false;
+			}
+
+			SerializableConditionalActionSet actionSet = retVal = new SerializableConditionalActionSet();
+			retVal.Condition = SerializableCondition.Deserialize(rdr, (reader, endKeyName) => {
+				/* first read loop */
+				while (true) {
+					DebugLogger.Log(ActionLoadDetailDetail, $"Looking for first action: {reader.toLogString()}");
+					if (reader.EOF) break;
+					if (reader.NodeType == XmlNodeType.Comment || reader.NodeType == XmlNodeType.Whitespace) {
+						DebugLogger.Log(ActionLoadDetailDetail, "Ignoring comment/whitespace node");
+						reader.Read();
+						continue;
+					}
+					break;
+				}
+
+				while (innerWhileCondition(reader, endKeyName)) {
+					SerializableAction action = SerializableAction.Deserialize(reader);
+					actionSet.Actions.Add(action);
+					do {
+						DebugLogger.Log(ActionLoadDetailDetail, $"Preparing for next element pre: {reader.toLogString()}");
+						reader.Read();
+						DebugLogger.Log(ActionLoadDetailDetail, $"Preparing for next element post: {reader.toLogString()}");
+					} while (reader.NodeType == XmlNodeType.Whitespace || reader.NodeType == XmlNodeType.Comment);
+				}
+			});
+			return true;
+		}
+
+		[Patch("Hacknet.SerializableAction.Deserialize", flags: InjectFlags.PassParametersRef)]
+		public static void onDebugHook_SA_Deserialize(ref XmlReader rdr) {
+			var acceptables = new HashSet<string> {
+				"LoadMission",
+				"RunFunction",
+				"AddAsset",
+				"AddMissionToHubServer",
+				"RemoveMissionFromHubServer",
+				"AddThreadToMissionBoard",
+				"AddIRCMessage",
+				"AddConditionalActions",
+				"CopyAsset",
+				"CrashComputer",
+				"DeleteFile",
+				"LaunchHackScript",
+				"SwitchToTheme",
+				"StartScreenBleedEffect",
+				"CancelScreenBleedEffect",
+				"AppendToFile",
+				"KillExe",
+				"ChangeAlertIcon",
+				"HideNode",
+				"GivePlayerUserAccount",
+				"ChangeIP",
+				"ChangeNetmapSortMethod",
+				"SaveGame",
+				"HideAllNodes",
+				"ShowNode"
+			};
+			while (true) {
+				if (rdr.EOF) {
+					DebugLogger.Log(ActionLoadDetail, "Reader reached end of file");
+					break;
+				}
+
+				if (rdr.IsStartElement()) {
+					string elName = rdr.Name;
+					DebugLogger.Log(ActionLoadDetail, $"Found new {rdr.NodeType}: {elName}");
+					if (acceptables.Contains(elName)) {
+						DebugLogger.Log(ActionLoadDetail, "Acceptable element! Delegating back to Hacknet...");
+						return;
+					}
+					DebugLogger.Log(ActionLoadDetail, "That element is unrecognized.");
+				} else {
+					DebugLogger.Log(ActionLoadDetail, $"Now within {rdr.NodeType}: {rdr.Name}");
+				}
+
+				rdr.Read();
+			}
 		}
 
 		#region Game Integration
