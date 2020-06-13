@@ -36,6 +36,16 @@ namespace Pathfinder {
 			DebugLogger.Log(MissionFunction, $"Running Mission function '{name}' with val {value}");
 		}
 
+		[Patch("Hacknet.ComputerLoader.readMission", -4, flags: InjectFlags.PassLocals,
+			localsID: new[] {2})]
+		public static void onDebugHookMissionRead(ref ActiveMission mission) {
+			DebugLogger.Log(MissionLoad, $"Loaded Mission '{mission.reloadGoalsSourceFile}'.");
+			DebugLogger.Log(MissionLoad,
+				$"startMission = {mission.startFunctionName.formatForLog()} / {mission.startFunctionValue}");
+			DebugLogger.Log(MissionLoad,
+				$"endMission = {mission.endFunctionName.formatForLog()} / {mission.endFunctionValue}");
+		}
+
 		#region Game Integration
 
 		[Patch("Hacknet.ProgramRunner.ExecuteProgram", 13,

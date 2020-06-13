@@ -9,6 +9,10 @@ namespace Pathfinder {
 		/**
 		 * Mission Function execution <see cref="Hacknet.MissionFunctions.runCommand"/>
 		 */
-		MissionFunction
+		MissionFunction,
+		/**
+		 * Mission Loading <see cref="Hacknet.ComputerLoader.readMission"/>
+		 */
+		MissionLoad
 	}
 }

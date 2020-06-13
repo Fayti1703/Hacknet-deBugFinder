@@ -28,3 +28,9 @@ However, the exception catches in `Hacknet.OS:Draw` and `Hacknet.OS:Update` are 
 
 ### MissionFunction
 This tag logs all mission function runs.
+
+### MissionLoad
+This tag logs all (successfully) loaded missions. The output format is as follows:<br>
+> Loaded Mission &lt;mission name&gt;<br>
+> startMission = &lt;missionStart function&gt; / &lt;missionStart value&gt;<br>
+> endMission = &lt;missionEnd function&gt; / &lt;missionEnd value&gt;
