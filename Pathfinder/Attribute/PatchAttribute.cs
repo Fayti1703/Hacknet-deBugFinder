@@ -1,7 +1,10 @@
 ﻿using System;
 using System.Reflection;
+using JetBrains.Annotations;
+
 namespace Pathfinder.Attribute
 {
+    [MeansImplicitUse]
     [AttributeUsage(AttributeTargets.Method, AllowMultiple = false)]
     public class PatchAttribute : System.Attribute
     {
