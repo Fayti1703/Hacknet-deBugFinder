@@ -70,3 +70,11 @@ This tag logs nothing. Instead, it prevents all (`Fast`)`DelayableActionSystem`s
 This tag logs all data that would be written to `report.txt`, provided that the write succeeds. It usually does, however, some
 issues, like opening too many files in the mission parser, cause the report writes to fail.<br>
 In order to properly use this tag, you may have to (ab)use the fact that the active set is not cleared between Hacknet sessions, only when you restart Hacknet itself.
+
+### SaveTrace
+This tag logs a complete stack trace of every single save attempt, 
+both using the "normal" `Hacknet.OS:saveGame` method, which launches a new thread to handle the save, 
+and direct execution of `Hacknet.OS:threadedSaveExecute`.<br>
+Note that all calls to `Hacknet.OS:saveGame` cause two log messages to be produced. 
+This is unavoidable without causing threading issues.<br>
+In addition, capturing the stack trace is a rather slow operation, so **expect performance to suffer** if you save with this tag active.

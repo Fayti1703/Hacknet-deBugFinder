@@ -45,6 +45,10 @@ namespace Pathfinder {
 		/**
 		 * Report writing. For catching too many open files 'n the like. <see cref="Hacknet.Misc.ExtensionTests.TestExtensionForRuntime" />
 		 */
-		WriteReport
+		WriteReport,
+		/**
+		 * Trace save writing. <see cref="Hacknet.OS.saveGame" /> <seealso cref="Hacknet.OS.threadedSaveExecute" />
+		 */
+		SaveTrace
 	}
 }
