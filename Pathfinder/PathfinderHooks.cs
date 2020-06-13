@@ -206,6 +206,11 @@ namespace Pathfinder {
 			return DebugLogger.isEnabled(DisableDelayProcessing);
 		}
 
+		[Patch("Hacknet.Misc.ExtensionTests.TestExtensionForRuntime", -1, flags: InjectFlags.PassLocals, localsID: new []{1})]
+		public static void onDebugHook_testComplete(ref string retVal) {
+			DebugLogger.Log(WriteReport, retVal);
+		}
+
 		#region Game Integration
 
 		[Patch("Hacknet.ProgramRunner.ExecuteProgram", 13,

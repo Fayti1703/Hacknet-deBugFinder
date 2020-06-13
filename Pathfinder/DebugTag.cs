@@ -41,6 +41,10 @@ namespace Pathfinder {
 		/**
 		 * Disable delay processing. <see cref="Hacknet.DelayableActionSystem.Update"/>
 		 */
-		DisableDelayProcessing
+		DisableDelayProcessing,
+		/**
+		 * Report writing. For catching too many open files 'n the like. <see cref="Hacknet.Misc.ExtensionTests.TestExtensionForRuntime" />
+		 */
+		WriteReport
 	}
 }

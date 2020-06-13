@@ -65,3 +65,8 @@ This, of course, **results in significant log spam** for any action file longer 
 ### DisableDelayProcessing
 This tag logs nothing. Instead, it prevents all (`Fast`)`DelayableActionSystem`s from updating. This includes
 `IRCDaemon`s, `DHSDaemon`s and `FastActionHost`s.
+
+### WriteReport
+This tag logs all data that would be written to `report.txt`, provided that the write succeeds. It usually does, however, some
+issues, like opening too many files in the mission parser, cause the report writes to fail.<br>
+In order to properly use this tag, you may have to (ab)use the fact that the active set is not cleared between Hacknet sessions, only when you restart Hacknet itself.
