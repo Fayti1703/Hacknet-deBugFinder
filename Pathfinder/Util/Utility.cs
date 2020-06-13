@@ -49,31 +49,10 @@ namespace Pathfinder.Util
         /// Gets the active mod's identifier.
         /// </summary>
         /// <value>The active mod identifier or Pathfinder if there is no active mod.</value>
-        public static string ActiveModId => Pathfinder.CurrentMod?.GetCleanId() ?? "Pathfinder";
 
         public static string GetCleanId(this string id) => id.Trim();
-        public static string GetCleanId(this IMod mod) => mod.Identifier.GetCleanId();
 
         public static Random Random { get; } = new Random();
-
-        /// <summary>
-        /// Retrieves an identifier for the input.
-        /// </summary>
-        /// <returns>The resulting identifier.</returns>
-        /// <param name="inputId">Input identifier.</param>
-        /// <param name="ignorePeriod">If set to <c>true</c> ignore period.</param>
-        /// <param name="ignoreValidXml">If set to <c>true</c> ignore valid xml.</param>
-        public static string GetId(string inputId, bool ignorePeriod = false, bool ignoreValidXml = false, bool throwFindingPeriod = false)
-        {
-            if (throwFindingPeriod && inputId.IndexOf('.') != -1)
-                throw new ArgumentException("Can't have a period in it", nameof(inputId));
-            var xmlString = inputId.IndexOf('.') != -1 ? inputId.Substring(inputId.LastIndexOf('.') + 1) : inputId;
-
-            xmlString = ignoreValidXml ? xmlString : ConvertToValidXmlAttributeName(xmlString);
-            if (!ignorePeriod && inputId.IndexOf('.') == -1)
-                return ActiveModId + "." + xmlString;
-            return inputId.IndexOf('.') != -1 ? inputId.Remove(inputId.LastIndexOf('.') + 1) + xmlString : inputId;
-        }
 
         /// <summary>
         /// Gets the current client OS.
@@ -433,20 +412,6 @@ namespace Pathfinder.Util
             if (value == null) return "<" + key + (attributeStr.Length > 0 ? " " + attributeStr : "") + " />";
             return "<" + key + ">" + value + "</" + key + (attributeStr.Length > 0 ? " " + attributeStr : "") + ">";
 
-        }
-
-        public static string ToXml(this Dictionary<string, Internal.DatabaseDaemonHandler.DataInfo> input, string objName, bool excludeOuter = false)
-        {
-            if (input == null || input.Count < 1 && excludeOuter) return "<" + objName + " />";
-            var builder = new StringBuilder();
-            if (!excludeOuter)
-                builder.Append("<" + objName + ">");
-            foreach (var set in input)
-                builder.AddXml(set);
-            if (excludeOuter)
-                builder.Append("\n");
-            else builder.Append("\n</" + objName + ">");
-            return builder.ToString();
         }
 
         public static string ToXml(this ICollection<string> input, string objName, bool excludeOuter = false)
