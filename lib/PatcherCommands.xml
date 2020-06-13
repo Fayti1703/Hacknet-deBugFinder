@@ -4,5 +4,9 @@
 		<type name="FileEncrypter">
 			<method name="GetPassCodeFromString" access="internal" />
 		</type>
+		<type name="MainMenu">
+			<field name="titleColor" access="internal" />
+			<field name="titleFont" access="internal" />
+		</type>
 	</namespace>
 </PatcherCommands>
