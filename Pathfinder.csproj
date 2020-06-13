@@ -96,6 +96,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Pathfinder\Attribute\PatchAttribute.cs" />
+    <Compile Include="Pathfinder\DebuggingCommands.cs" />
     <Compile Include="Pathfinder\DebugLogger.cs" />
     <Compile Include="Pathfinder\DebugTag.cs" />
     <Compile Include="Pathfinder\Internal\Patcher\Executor.cs" />
