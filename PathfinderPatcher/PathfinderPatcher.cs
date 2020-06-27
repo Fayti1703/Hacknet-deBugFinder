@@ -80,91 +80,10 @@ namespace PathfinderPatcher
 
             try
             {
-                // Loads FNA.dll for some extra injections
-                var fna = LoadAssembly(exeDir + "FNA.dll");
-
                 // Adds Pathfinder internal attribute hack
                 gameAssembly.AddAssemblyAttribute<InternalsVisibleToAttribute>("Pathfinder");
                 // Removes internal visibility from types
-                // TODO: Is this still required?
                 gameAssembly.RemoveInternals();
-
-                #region Hardcoded Type Modification
-                // Some hardcoded stuff
-
-                // Ensure ActiveMission's methods are virtual
-                var activeMission = gameAssembly.MainModule.GetType("Hacknet.ActiveMission");
-                foreach (var m in activeMission.Methods)
-                {
-                    if (m.IsStatic || m.IsConstructor) continue;
-                    m.IsVirtual = true;
-                    m.IsNewSlot = true;
-                }
-                // Retrieve FNA's Vector2 as a type reference
-                var v2 = gameAssembly.MainModule.ImportReference(fna.MainModule.GetType("Microsoft.Xna.Framework.Vector2"));
-
-                // Add simplified constructor implictedly referencing Hacknet.OS.currentInstance
-                var type = gameAssembly.MainModule.GetType("Hacknet.Computer");
-                type.AddRefConstructor(type.GetMethod(".ctor"),
-                new TypeReference[] {
-                    gameAssembly.MainModule.TypeSystem.String,
-                    gameAssembly.MainModule.TypeSystem.String,
-                    v2,
-                    gameAssembly.MainModule.TypeSystem.Int32,
-                    gameAssembly.MainModule.TypeSystem.Byte
-                },
-                new Instruction[] {
-                    Instruction.Create(OpCodes.Ldsfld, gameAssembly.MainModule.GetType("Hacknet.OS").GetField("currentInstance"))
-                });
-
-                // Add simplified constructor assigning the compType value to 0
-                type.AddRefConstructor(type.GetMethod(".ctor", gameAssembly.MainModule.TypeSystem.String,
-                                                      gameAssembly.MainModule.TypeSystem.String,
-                                                      v2,
-                                                      gameAssembly.MainModule.TypeSystem.Int32,
-                                                      gameAssembly.MainModule.TypeSystem.Byte),
-                new TypeReference[] {
-                    gameAssembly.MainModule.TypeSystem.String,
-                    gameAssembly.MainModule.TypeSystem.String,
-                    v2,
-                    gameAssembly.MainModule.TypeSystem.Int32
-                },
-                new Instruction[] {
-                    Instruction.Create(OpCodes.Ldc_I4_0)
-                });
-                // Create FileProperties Struct for FileType
-                var nestedType = new TypeBuilder
-                {
-                    Namespace = "Hacknet",
-                    Name = "FileProperties",
-                    BaseType = typeof(ValueType),
-                    Fields = {
-                        new FieldBuilder { Name = "AccessedTime", Type = typeof(ulong) },
-                        new FieldBuilder { Name = "ModifiedTime", Type = typeof(ulong) },
-                        new FieldBuilder { Name = "ChangedTime", Type = typeof(ulong) },
-                        new FieldBuilder { Name = "PrivilegeMask", Type = typeof(short) },
-                    }
-                }.Build(gameAssembly.MainModule);
-                gameAssembly.MainModule.Types.Add(nestedType);
-
-
-                // Create FileProperties Properties getter/setter Property in FileType
-                type.AddUndefinedProperty("Properties", nestedType);
-
-                // Add Properties Property to FileEntry
-                type = gameAssembly.MainModule.GetType("Hacknet.FileEntry");
-                type.ModifyConstructor(GetCommonConstructorModifier(nestedType,
-                    type.AddFullProperty("Properties", nestedType),
-                    type.GetField("secondCreatedAt")));
-
-                // Add Properties Property to Folder
-                type = gameAssembly.MainModule.GetType("Hacknet.Folder");
-                type.ModifyConstructor((m => { m.Body.Variables.Add(new VariableDefinition(gameAssembly.MainModule.TypeSystem.UInt64)); })
-                    + GetCommonConstructorModifier(nestedType,
-                    type.AddFullProperty("Properties", nestedType),
-                    gameAssembly.MainModule.GetType("Hacknet.OS").GetField("currentElapsedTime")));
-                #endregion
-
 
                 // Run Patcher Tasks
                 foreach(TypeTaskItem task in TaskReader.readTaskListFile(new FileInfo(pathfinderDir + "PatcherCommands.xml").FullName))
