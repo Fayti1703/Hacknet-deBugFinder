@@ -172,7 +172,8 @@ namespace Pathfinder {
 				"ChangeNetmapSortMethod",
 				"SaveGame",
 				"HideAllNodes",
-				"ShowNode"
+				"ShowNode",
+				"SetLock"
 			};
 			while (true) {
 				if (rdr.EOF) {
