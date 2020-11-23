@@ -11,5 +11,8 @@
 		<type name="MailServer">
 			<field name="emailData" access="internal" />
 		</type>
+		<type name="MissionHubServer">
+			<field name="listingMissions" access="internal" />
+		</type>
 	</namespace>
 </PatcherCommands>

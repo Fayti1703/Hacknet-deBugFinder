@@ -6,7 +6,7 @@ Hacknet Extension debugging tool based on [Pathfinder](https://github.com/Arkhis
 
 # Usage
 
-Two commands have been added to the in-game terminal:
+Three commands have been added to the in-game terminal:
 * `deccode`:
     Prints the internal code value used in DEC encryption for each string provided.
 * `detags`: 
@@ -16,7 +16,8 @@ Two commands have been added to the in-game terminal:
     * `detags <tag name> {on/true/add}`: Add a tag to the active set.
     * `detags <tag name> {off/false/remove}`: Remove a tag from the active set.
     * `detags <tag name> {get/status}`: Prints the status of this tag
-    
+* `hublockdump`:
+    Dumps the mission lock info from the currently connected node's first MissionListingServer, if any.
 
 ## Debugging Tags
 
