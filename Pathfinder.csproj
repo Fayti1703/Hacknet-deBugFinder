@@ -106,7 +106,10 @@
     <Compile Include="Pathfinder\PathfinderHooks.cs" />
     <Compile Include="GlobalSuppressions.cs" />
   </ItemGroup>
-  <ItemGroup />
+  <ItemGroup>
+    <Content Include="lib\PatcherCommands.xml" />
+    <Content Include="lib\TaskList.xsd" />
+  </ItemGroup>
   <ItemGroup />
   <ItemGroup>
     <None Include="packages.config" />
