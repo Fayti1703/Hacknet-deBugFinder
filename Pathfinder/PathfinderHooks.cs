@@ -39,20 +39,26 @@ namespace Pathfinder {
 			DebugLogger.Log(MissionFunction, $"Running Mission function '{name}' with val {value}");
 		}
 
-		[Patch("Hacknet.ComputerLoader.readMission", -4, flags: InjectFlags.PassLocals,
-			localsID: new[] {2})]
-		public static void onDebugHookMissionRead(ref ActiveMission mission) {
+		[Patch("Hacknet.ComputerLoader.readMission",
+			-4,
+			flags: InjectFlags.PassLocals,
+			localsID: new[] {2}
+		)]
+		public static void onDebugHook_MissionRead(ref ActiveMission mission) {
 			DebugLogger.Log(MissionLoad, $"Loaded Mission '{mission.reloadGoalsSourceFile}'.");
 			DebugLogger.Log(MissionLoad,
-				$"startMission = {mission.startFunctionName.formatForLog()} / {mission.startFunctionValue}");
+				$"startMission = {mission.startFunctionName.formatForLog()} / {mission.startFunctionValue}"
+			);
 			DebugLogger.Log(MissionLoad,
-				$"endMission = {mission.endFunctionName.formatForLog()} / {mission.endFunctionValue}");
+				$"endMission = {mission.endFunctionName.formatForLog()} / {mission.endFunctionValue}"
+			);
 		}
 
 		[Patch("Hacknet.ActiveMission.isComplete",
 			flags: InjectFlags.PassInvokingInstance | InjectFlags.PassParametersVal |
-			       InjectFlags.ModifyReturn)]
-		public static bool onDebugHookAM_isComplete(ActiveMission self, out bool ret, List<string> additionalDetails) {
+			InjectFlags.ModifyReturn
+		)]
+		public static bool onDebugHook_AM_isComplete(ActiveMission self, out bool ret, List<string> additionalDetails) {
 			ret = true;
 			foreach (MisisonGoal goal in self.goals.Where(goal => !goal.isComplete(additionalDetails))) {
 				DebugLogger.Log(MissionComplete, $"A {goal.GetType().Name} goal prevented mission completion.");
@@ -64,8 +70,9 @@ namespace Pathfinder {
 		}
 
 		[Patch("Hacknet.MailServer.attemptCompleteMission",
-			flags: InjectFlags.PassInvokingInstance | InjectFlags.PassParametersVal)]
-		public static void onDebugHookMS_attemptCompleteMission(MailServer self, ActiveMission mission) {
+			flags: InjectFlags.PassInvokingInstance | InjectFlags.PassParametersVal
+		)]
+		public static void onDebugHook_MS_attemptCompleteMission(MailServer self, ActiveMission mission) {
 			if (mission.ShouldIgnoreSenderVerification || mission.email.sender == self.emailData[1]) return;
 			DebugLogger.Log(SenderVerify, $"Mission '{mission.reloadGoalsSourceFile}' failed sender verification!");
 			DebugLogger.Log(SenderVerify, "email says: " + self.emailData[1]);
@@ -73,7 +80,8 @@ namespace Pathfinder {
 		}
 
 		[Patch("Hacknet.SCHasFlags.Check",
-			flags: InjectFlags.ModifyReturn | InjectFlags.PassInvokingInstance | InjectFlags.PassParametersVal)]
+			flags: InjectFlags.ModifyReturn | InjectFlags.PassInvokingInstance | InjectFlags.PassParametersVal
+		)]
 		public static bool onDebugHookSCHF_Check(SCHasFlags self, out bool retVal, object os_obj) {
 			var os = (OS) os_obj;
 			if (string.IsNullOrWhiteSpace(self.requiredFlags)) {
@@ -102,16 +110,20 @@ namespace Pathfinder {
 		}
 
 		[Patch("Hacknet.SerializableConditionalActionSet.Deserialize",
-			flags: InjectFlags.PassParametersRef | InjectFlags.ModifyReturn)]
+			flags: InjectFlags.PassParametersRef | InjectFlags.ModifyReturn
+		)]
 		public static bool onDebugHook_SCAS_Deserialize(
 			out SerializableConditionalActionSet retVal, ref XmlReader rdr
 		) {
 			static bool innerWhileCondition(XmlReader reader, string endKeyName) {
-				DebugLogger.Log(ActionLoadDetailDetail, $"Looping over elements: {reader.toLogString()} / endKeyName = {endKeyName}");
+				DebugLogger.Log(ActionLoadDetailDetail,
+					$"Looping over elements: {reader.toLogString()} / endKeyName = {endKeyName}"
+				);
 				if (reader.EOF) {
 					DebugLogger.Log(ActionLoadDetailDetail, "Reader hit EOF.");
 					return false;
 				}
+
 				if (reader.Name != endKeyName) return true;
 				if (reader.IsStartElement()) return true;
 				DebugLogger.Log(ActionLoadDetailDetail, "Found end key name.");
@@ -119,29 +131,36 @@ namespace Pathfinder {
 			}
 
 			SerializableConditionalActionSet actionSet = retVal = new SerializableConditionalActionSet();
-			retVal.Condition = SerializableCondition.Deserialize(rdr, (reader, endKeyName) => {
-				/* first read loop */
-				while (true) {
-					DebugLogger.Log(ActionLoadDetailDetail, $"Looking for first action: {reader.toLogString()}");
-					if (reader.EOF) break;
-					if (reader.NodeType == XmlNodeType.Comment || reader.NodeType == XmlNodeType.Whitespace) {
-						DebugLogger.Log(ActionLoadDetailDetail, "Ignoring comment/whitespace node");
-						reader.Read();
-						continue;
-					}
-					break;
-				}
+			retVal.Condition = SerializableCondition.Deserialize(rdr,
+				(reader, endKeyName) => {
+					/* first read loop */
+					while (true) {
+						DebugLogger.Log(ActionLoadDetailDetail, $"Looking for first action: {reader.toLogString()}");
+						if (reader.EOF) break;
+						if (reader.NodeType == XmlNodeType.Comment || reader.NodeType == XmlNodeType.Whitespace) {
+							DebugLogger.Log(ActionLoadDetailDetail, "Ignoring comment/whitespace node");
+							reader.Read();
+							continue;
+						}
 
-				while (innerWhileCondition(reader, endKeyName)) {
-					SerializableAction action = SerializableAction.Deserialize(reader);
-					actionSet.Actions.Add(action);
-					do {
-						DebugLogger.Log(ActionLoadDetailDetail, $"Preparing for next element pre: {reader.toLogString()}");
-						reader.Read();
-						DebugLogger.Log(ActionLoadDetailDetail, $"Preparing for next element post: {reader.toLogString()}");
-					} while (reader.NodeType == XmlNodeType.Whitespace || reader.NodeType == XmlNodeType.Comment);
+						break;
+					}
+
+					while (innerWhileCondition(reader, endKeyName)) {
+						SerializableAction action = SerializableAction.Deserialize(reader);
+						actionSet.Actions.Add(action);
+						do {
+							DebugLogger.Log(ActionLoadDetailDetail,
+								$"Preparing for next element pre: {reader.toLogString()}"
+							);
+							reader.Read();
+							DebugLogger.Log(ActionLoadDetailDetail,
+								$"Preparing for next element post: {reader.toLogString()}"
+							);
+						} while (reader.NodeType == XmlNodeType.Whitespace || reader.NodeType == XmlNodeType.Comment);
+					}
 				}
-			});
+			);
 			return true;
 		}
 
@@ -189,9 +208,8 @@ namespace Pathfinder {
 						return;
 					}
 					DebugLogger.Log(ActionLoadDetail, "That element is unrecognized.");
-				} else {
+				} else
 					DebugLogger.Log(ActionLoadDetail, $"Now within {rdr.NodeType}: {rdr.Name}");
-				}
 
 				rdr.Read();
 			}
@@ -207,7 +225,11 @@ namespace Pathfinder {
 			return DebugLogger.isEnabled(DisableDelayProcessing);
 		}
 
-		[Patch("Hacknet.Misc.ExtensionTests.TestExtensionForRuntime", -1, flags: InjectFlags.PassLocals, localsID: new []{1})]
+		[Patch("Hacknet.Misc.ExtensionTests.TestExtensionForRuntime",
+			-1,
+			flags: InjectFlags.PassLocals,
+			localsID: new[] {1}
+		)]
 		public static void onDebugHook_testComplete(ref string retVal) {
 			DebugLogger.Log(WriteReport, retVal);
 		}
@@ -219,12 +241,15 @@ namespace Pathfinder {
 
 		[Patch("Hacknet.OS.threadedSaveExecute")]
 		public static void onDebugHook_saveFromThread() {
-			DebugLogger.Log(SaveTrace, () => "Threaded save execution triggered \n" + new System.Diagnostics.StackTrace(1));
+			DebugLogger.Log(SaveTrace,
+				() => "Threaded save execution triggered \n" + new System.Diagnostics.StackTrace(1)
+			);
 		}
 
 		#region Game Integration
 
-		[Patch("Hacknet.ProgramRunner.ExecuteProgram", 13,
+		[Patch("Hacknet.ProgramRunner.ExecuteProgram",
+			13,
 			flags: InjectFlags.PassParametersVal | InjectFlags.ModifyReturn | InjectFlags.PassLocals,
 			localsID: new[] {1}
 		)]
@@ -237,25 +262,40 @@ namespace Pathfinder {
 			return true;
 		}
 
-		[Patch("Hacknet.MainMenu.DrawBackgroundAndTitle", 7,
+		[Patch("Hacknet.MainMenu.DrawBackgroundAndTitle",
+			7,
 			flags: InjectFlags.PassInvokingInstance | InjectFlags.ModifyReturn | InjectFlags.PassLocals,
-			localsID: new[] { 0 }
+			localsID: new[] {0}
 		)]
 		public static bool onDrawMainMenuTitles(MainMenu self, out bool result, ref Rectangle dest) {
 			result = true;
-			FlickeringTextEffect.DrawLinedFlickeringText(new Rectangle(180, 120, 340, 100), "HACKNET", 7f, 0.55f, self.titleFont, (object) null, self.titleColor, 2);
-			string versionInfo = "OS" + (DLC1SessionUpgrader.HasDLC1Installed ? "+Labyrinths " : " ") + MainMenu.OSVersion + " ## deBugFinder v0.1";
-			TextItem.doFontLabel(new Vector2(520f, 178f), versionInfo, GuiData.smallfont, self.titleColor * 0.5f, 600f, 26f);
+			FlickeringTextEffect.DrawLinedFlickeringText(new Rectangle(180, 120, 340, 100),
+				"HACKNET",
+				7f,
+				0.55f,
+				self.titleFont,
+				(object) null,
+				self.titleColor,
+				2
+			);
+			string versionInfo = "OS" + (DLC1SessionUpgrader.HasDLC1Installed ? "+Labyrinths " : " ") +
+				MainMenu.OSVersion + " ## deBugFinder v0.1";
+			TextItem.doFontLabel(new Vector2(520f, 178f),
+				versionInfo,
+				GuiData.smallfont,
+				self.titleColor * 0.5f,
+				600f,
+				26f
+			);
 			if (!Settings.IsExpireLocked) return true;
 			TimeSpan timeSpan = Settings.ExpireTime - DateTime.Now;
 			string text;
-			if (timeSpan.TotalSeconds < 1.0)
-			{
+			if (timeSpan.TotalSeconds < 1.0) {
 				text = LocaleTerms.Loc("TEST BUILD EXPIRED - EXECUTION DISABLED");
 				result = false;
-			}
-			else
+			} else
 				text = "Test Build : Expires in " + timeSpan;
+
 			TextItem.doFontLabel(new Vector2(180f, 105f), text, GuiData.smallfont, Color.Red * 0.8f, 600f, 26f);
 			return true;
 		}

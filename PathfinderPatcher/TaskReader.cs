@@ -122,66 +122,62 @@ namespace PathfinderPatcher
             throw new FormatException("Unexpected end of file. This should never occur.");
         }
 
-        public static List<TypeTaskItem> readTaskListFile(string filename)
-        {
+        public static List<TypeTaskItem> readTaskListFile(string filename) {
             XmlTextReader reader = new XmlTextReader(filename);
 
-            var retVal = new List<TypeTaskItem>();
+            using (reader) {
 
-            /* skip to (and in the loop, past) root element */
-            do
-            {
-                reader.Read();
-            } while (reader.NodeType != Element);
+                var retVal = new List<TypeTaskItem>();
 
-            var namespaceChain = new LinkedList<string>();
-            string namespaceCache = null;
+                /* skip to (and in the loop, past) root element */
+                do {
+                    reader.Read();
+                } while (reader.NodeType != Element);
 
-            while (!reader.EOF)
-            {
-                reader.Read();
-                switch (reader.NodeType)
-                {
-                    case Element:
-                        switch (reader.Name)
-                        {
-                            case "namespace":
-                                if (!reader.MoveToAttribute("name"))
-                                {
+                var namespaceChain = new LinkedList<string>();
+                string namespaceCache = null;
+
+                while (!reader.EOF) {
+                    reader.Read();
+                    switch (reader.NodeType) {
+                        case Element:
+                            switch (reader.Name) {
+                                case "namespace":
+                                    if (!reader.MoveToAttribute("name")) {
+                                        throw new FormatException(
+                                            $"TaskList XSD violation: Missing `name` attribute on `namespace` element{reader.LineInfoForExcept()}");
+                                    }
+
+                                    namespaceChain.AddLast(reader.ReadContentAsString());
+                                    namespaceCache = null;
+                                    break;
+                                case "type":
+                                    if (namespaceCache == null) {
+                                        namespaceCache = string.Join(".", namespaceChain);
+                                    }
+
+                                    retVal.Add((TypeTaskItem) readTypeTasks(namespaceCache, reader));
+
+                                    break;
+                                default:
                                     throw new FormatException(
-                                        $"TaskList XSD violation: Missing `name` attribute on `namespace` element{reader.LineInfoForExcept()}");
-                                }
+                                        $"TaskList XSD violation: Unexpected `{reader.Name}` element{reader.LineInfoForExcept()}");
+                            }
 
-                                namespaceChain.AddLast(reader.ReadContentAsString());
-                                namespaceCache = null;
-                                break;
-                            case "type":
-                                if (namespaceCache == null)
-                                {
-                                    namespaceCache = string.Join(".", namespaceChain);
-                                }
-
-                                retVal.Add((TypeTaskItem) readTypeTasks(namespaceCache, reader));
-
-                                break;
-                            default:
-                                throw new FormatException(
-                                    $"TaskList XSD violation: Unexpected `{reader.Name}` element{reader.LineInfoForExcept()}");
-                        }
-
-                        break;
-                    case EndElement:
-                        /* if the namespace chain is empty and an element has ended, then said element *must* be the document root, per XSD and per our throws. */
-                        if (namespaceChain.Count == 0) return retVal;
-                        Debug.Assert(reader.Name == "namespace",
-                            "Reader at a non-`namespace` EndElement. This should not happen.");
-                        namespaceChain.RemoveLast();
-                        namespaceCache = null;
-                        break;
+                            break;
+                        case EndElement:
+                            /* if the namespace chain is empty and an element has ended, then said element *must* be the document root, per XSD and per our throws. */
+                            if (namespaceChain.Count == 0) return retVal;
+                            Debug.Assert(reader.Name == "namespace",
+                                "Reader at a non-`namespace` EndElement. This should not happen.");
+                            namespaceChain.RemoveLast();
+                            namespaceCache = null;
+                            break;
+                    }
                 }
-            }
 
-            throw new FormatException("Unexpected end of file. This should never occur.");
+                throw new FormatException("Unexpected end of file. This should never occur.");
+            }
         }
     }
 }
