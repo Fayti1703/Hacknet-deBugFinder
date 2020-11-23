@@ -102,6 +102,7 @@ namespace Pathfinder {
 							)
 						);
 						os.write("Available debug tags: " + allTags);
+						break;
 					}
 
 					os.write("Usage: `detags [<tag> <on/off/get>]` or `detags list`");
