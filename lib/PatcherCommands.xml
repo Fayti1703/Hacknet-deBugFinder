@@ -14,5 +14,8 @@
 		<type name="MissionHubServer">
 			<field name="listingMissions" access="internal" />
 		</type>
+		<type name="Computer">
+			<field name="os" access="internal" />
+		</type>
 	</namespace>
 </PatcherCommands>

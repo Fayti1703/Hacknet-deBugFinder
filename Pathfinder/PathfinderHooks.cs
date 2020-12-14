@@ -246,6 +246,33 @@ namespace Pathfinder {
 			);
 		}
 
+		[Patch("Hacknet.Computer.crash", flags: InjectFlags.PassInvokingInstance)]
+		public static void onDebugHook_Comp_Crash(Computer self) {
+			DebugLogger.Log(ComputerCrash, () => $"'{self.idName}' crashed.");
+		}
+
+		[Patch("Hacknet.Computer.bootupTick", -2, flags: InjectFlags.PassInvokingInstance)]
+		public static void onDebugHook_Comp_BootupTick(Computer self) {
+			DebugLogger.Log(ComputerCrash, () => $"'{self.idName}' rebooted.");
+		}
+
+		[Patch("Hacknet.Computer.forkBombClients", flags: InjectFlags.PassInvokingInstance)]
+		public static void onDebugHook_Comp_fbClients(Computer self) {
+			DebugLogger.Log(ComputerCrash,
+				() => self.os.ActiveHackers.Where(hacker => hacker.Value == self.ip)
+					.Aggregate($"'{self.idName}' is forkbombing clients.",
+						(acc, hacker) =>
+							acc + "\nAffected node: " + Programs.getComputer(self.os, hacker.Key).idName
+					)
+			);
+		}
+
+		[Patch("Hacknet.HackerScriptExecuter.executeThreadedScript", 40, flags: InjectFlags.PassLocals, localsID: new[] { 3 })]
+		public static void onDebugHook_HSE_CrashCheck(ref Computer _source) {
+			Computer source = _source;
+			DebugLogger.Log(ComputerCrash, () => "HackerScript from '" + source.idName + "' shutting down because host computer crashed.");
+		}
+
 		#region Game Integration
 
 		[Patch("Hacknet.ProgramRunner.ExecuteProgram",

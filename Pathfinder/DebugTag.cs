@@ -49,6 +49,14 @@ namespace Pathfinder {
 		/**
 		 * Trace save writing. <see cref="Hacknet.OS.saveGame" /> <seealso cref="Hacknet.OS.threadedSaveExecute" />
 		 */
-		SaveTrace
+		SaveTrace,
+		/**
+		 * Crashing and rebooting computers.
+		 * <see cref="Hacknet.Computer.crash"/>
+		 * <seealso cref="Hacknet.Computer.bootupTick"/>
+		 * <seealso cref="Hacknet.Computer.forkBombClients"/>
+		 * <seealso cref="Hacknet.HackerScriptExecuter.executeThreadedScript" why="HackerScripts die when their Computer crashes."/>
+		 */
+		ComputerCrash
 	}
 }
