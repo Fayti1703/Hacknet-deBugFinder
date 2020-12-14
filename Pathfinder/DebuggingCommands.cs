@@ -62,6 +62,56 @@ neededRank = {curFact.neededValue}");
 						$"Mission '{mission.postingTitle}' is {(lockReason == null ? "unlocked" : $"locked. ({lockReason})")}"
 					);
 				}
+			} },
+			{ "launchopt", args => {
+
+				const string usage = "launchopt <debug/fc/web/hex> [on/off/toggle]";
+				
+				bool doValue(ref bool val) {
+					if (args.Length < 2)
+						return val;
+					return val = args[1] switch {
+						"on" => true,
+						"off" => false,
+						"toggle" => !val,
+						var _ => val
+					};
+				}
+				
+				var os = OS.currentInstance;
+				if (args.Length < 1) {
+					os.write(usage);
+					return;
+				}
+
+				string optName;
+				bool res;
+
+				switch (args[0]) {
+					case "debug":
+						optName = "Debug Commands";
+						res = doValue(ref Settings.debugCommandsEnabled);
+						OS.DEBUG_COMMANDS = res;
+						break;
+					case "fc":
+						optName = "Force Complete";
+						res = doValue(ref Settings.forceCompleteEnabled);
+						break;
+					case "web":
+						optName = "Web Renderer";
+						res = doValue(ref WebRenderer.Enabled);
+						break;
+					case "hex":
+						optName = "Hex Background";
+						res = doValue(ref Settings.DrawHexBackground);
+						break;
+					default:
+						os.write($"Unknown launch option: '{args[0]}'");
+						os.write(usage);
+						return;
+				}
+				
+				os.write($"{optName} is {(args.Length < 1 ? "" : "now ")}{(res ? "on" : "off")}");
 			} }
 		};
 
