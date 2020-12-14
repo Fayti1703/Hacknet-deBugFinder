@@ -5,12 +5,24 @@ using Hacknet;
 namespace Pathfinder {
 	public static class DebuggingCommands {
 
-		private static Dictionary<string, Action<string[]>> commands = new Dictionary<string, Action<string[]>> {
+		private static readonly Dictionary<string, Action<string[]>> commands = new Dictionary<string, Action<string[]>> {
 			{ "detags", DebugLogger.HacknetInterface },
 			{ "deccode", args => {
 				foreach (string arg in args) {
 					OS.currentInstance.write($"{arg} = " + FileEncrypter.GetPassCodeFromString(arg));
 				}
+			} },
+			{ "dumpfact", args => {
+				OS os = OS.currentInstance;
+				Faction curFact = os.currentFaction;
+				os.write(curFact == null
+					? "No current faction."
+					: $@"Current faction: 
+name       = {curFact.name}
+idName     = {curFact.idName}
+rank       = {curFact.playerValue}
+maxRank    = {curFact.getMaxRank()}
+neededRank = {curFact.neededValue}");
 			} },
 			{ "hublockdump", args => {
 				var os = OS.currentInstance;
