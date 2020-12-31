@@ -109,3 +109,7 @@ In addition, capturing the stack trace is a rather slow operation, so **expect p
 This tag logs whenever a computer crashes, a computer forkbombs its clients (Shell Tap),
 a HackerScript dies due to a computer crashing or a computer boots back up.
 
+### MissionLoadTrace
+This tag logs a complete stack trace whenever a mission load begins.
+Capturing the stack trace is a rather slow operation, so **expect performance to suffer** during mission loads with this tag active.
+

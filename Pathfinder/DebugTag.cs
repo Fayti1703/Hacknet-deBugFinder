@@ -57,6 +57,10 @@ namespace Pathfinder {
 		 * <seealso cref="Hacknet.Computer.forkBombClients"/>
 		 * <seealso cref="Hacknet.HackerScriptExecuter.executeThreadedScript" why="HackerScripts die when their Computer crashes."/>
 		 */
-		ComputerCrash
+		ComputerCrash,
+		/**
+		 * Trace mission loading. <see cref="Hacknet.ComputerLoader.readMission"/>
+		 */
+		MissionLoadTrace
 	}
 }
