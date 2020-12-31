@@ -100,6 +100,7 @@
     <Compile Include="Pathfinder\DebugLogger.cs" />
     <Compile Include="Pathfinder\DebugTag.cs" />
     <Compile Include="Pathfinder\Internal\Patcher\Executor.cs" />
+    <Compile Include="Pathfinder\NearbyNodeOffsetViewer.cs" />
     <Compile Include="Pathfinder\Util\Extensions.cs" />
     <Compile Include="Pathfinder\Util\XmlExtensions.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

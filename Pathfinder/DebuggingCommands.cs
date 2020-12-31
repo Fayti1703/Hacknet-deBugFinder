@@ -112,7 +112,8 @@ neededRank = {curFact.neededValue}");
 				}
 				
 				os.write($"{optName} is {(args.Length < 1 ? "" : "now ")}{(res ? "on" : "off")}");
-			} }
+			} },
+			{ "nodeoffset",  NearbyNodeOffsetViewer.HacknetInterface }
 		};
 
 		public static bool isValidCommand(string cmdName) {

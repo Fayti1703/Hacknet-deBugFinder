@@ -289,6 +289,16 @@ namespace Pathfinder {
 			return true;
 		}
 
+		[Patch("Hacknet.OS.quitGame")]
+		public static void onQuitGame() {
+			NearbyNodeOffsetViewer.onSessionStop();
+		}
+
+		[Patch("Hacknet.OS.Update", flags: InjectFlags.PassParametersVal)]
+		public static void onUpdateGame(GameTime deltaT, bool unfocused, bool covered) {
+			NearbyNodeOffsetViewer.onUpdate(deltaT);
+		}
+
 		[Patch("Hacknet.MainMenu.DrawBackgroundAndTitle",
 			7,
 			flags: InjectFlags.PassInvokingInstance | InjectFlags.ModifyReturn | InjectFlags.PassLocals,
