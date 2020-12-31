@@ -236,13 +236,13 @@ namespace Pathfinder {
 
 		[Patch("Hacknet.OS.saveGame")]
 		public static void onDebugHook_saveBeginThread() {
-			DebugLogger.Log(SaveTrace, () => "Save thread triggered \n" + new System.Diagnostics.StackTrace(1));
+			DebugLogger.Log(SaveTrace, () => "Save thread triggered \n" + new System.Diagnostics.StackTrace(3));
 		}
 
 		[Patch("Hacknet.OS.threadedSaveExecute")]
 		public static void onDebugHook_saveFromThread() {
 			DebugLogger.Log(SaveTrace,
-				() => "Threaded save execution triggered \n" + new System.Diagnostics.StackTrace(1)
+				() => "Threaded save execution triggered \n" + new System.Diagnostics.StackTrace(3)
 			);
 		}
 
