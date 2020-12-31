@@ -6,18 +6,43 @@ Hacknet Extension debugging tool based on [Pathfinder](https://github.com/Arkhis
 
 # Usage
 
-Three commands have been added to the in-game terminal:
+Six commands have been added to the in-game terminal:
 * `deccode`:
     Prints the internal code value used in DEC encryption for each string provided.
 * `detags`: 
     Manage debugging tags. This command is split into various subcommands:
     * `detags` (no arguments): Lists the currently active debugging tags
     * `detags list`: Lists all available debugging tags
-    * `detags <tag name> {on/true/add}`: Add a tag to the active set.
-    * `detags <tag name> {off/false/remove}`: Remove a tag from the active set.
-    * `detags <tag name> {get/status}`: Prints the status of this tag
+    * `detags <tag name> {on/true/add}`: Add the tag `<tag name>` to the active set.
+    * `detags <tag name> {off/false/remove}`: Remove the tag `<tag name>` from the active set.
+    * `detags <tag name> {get/status}`: Print the status of the tag `<tag name>`.
 * `hublockdump`:
     Dumps the mission lock info from the currently connected node's first MissionListingServer, if any.
+* `dumpfact`:
+    Dumps the current faction information.
+* `launchopt <launchopt> [on/off/toggle]`:
+    Manipulates launch options. Available launch options:
+    * `debug` (`-enabledebug`)
+    * `fc` (`-enablefc`)
+    * `web` (`-disableweb`)
+    * `hex` (`-disablebackground`)
+* `nodeoffset`:
+    Control the Nearby Node Offset Viewer, aka the `positionNear` debugger. Subcommands:
+    * `nodeoffset root-node`: Set the current node as the root node (`target` attribute)
+    * `nodeoffset leaf-node`: Set the current node as the leaf node (the one `positionNear` would be on)
+    * `nodeoffset start`: Begin the rotatening
+    * `nodeoffset stop`: Stop the rotatening
+    * `nodeoffset config <delay> <total> [extra] [max-pos] [min-pos]`: Configure the rotatening:
+        * `<delay>`: How many milliseconds between updates. Double-precision floating-point
+        * `<total>`: `total` attribute.
+        * `[extra]`: `extraDistance` attribute. Defaults to `0`
+        * `[max-pos]`: Maximum value for the `position` attribute. Defaults to `<total>`
+        * `[min-pos]`: Minimum value for the `position` attribute. Defaults to `0`
+    * `nodeoffset once <pos> <total> [extra]`
+        * `<pos>`: `position` attribute.
+        * `<total>`: `total` attribute.
+        * `[extra]`: `extraDistance` attribute. Defaults to `0`.
+    
 
 ## Debugging Tags
 
@@ -79,3 +104,8 @@ and direct execution of `Hacknet.OS:threadedSaveExecute`.<br>
 Note that all calls to `Hacknet.OS:saveGame` cause two log messages to be produced. 
 This is unavoidable without causing threading issues.<br>
 In addition, capturing the stack trace is a rather slow operation, so **expect performance to suffer** if you save with this tag active.
+
+### ComputerCrash
+This tag logs whenever a computer crashes, a computer forkbombs its clients (Shell Tap),
+a HackerScript dies due to a computer crashing or a computer boots back up.
+
