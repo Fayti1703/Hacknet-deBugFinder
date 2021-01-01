@@ -111,7 +111,7 @@ neededRank = {curFact.neededValue}");
 						return;
 				}
 				
-				os.write($"{optName} is {(args.Length < 1 ? "" : "now ")}{(res ? "on" : "off")}");
+				os.write($"{optName} is {(args.Length < 2 ? "" : "now ")}{(res ? "on" : "off")}");
 			} },
 			{ "nodeoffset",  NearbyNodeOffsetViewer.HacknetInterface }
 		};
