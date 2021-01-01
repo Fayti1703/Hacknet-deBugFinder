@@ -50,6 +50,7 @@ namespace Pathfinder {
 				case "stop":
 					if (active) {
 						active = false;
+						currentPosition = 0;
 						delayCounter = 0;
 						OS.currentInstance.write("Stopped spinning the node.");
 					} else
@@ -113,7 +114,7 @@ namespace Pathfinder {
 					try {
 						position = Convert.ToInt32(args[1]);
 						total = Convert.ToInt32(args[2]);
-						extraDistance = args.Length >= 3 ? Convert.ToSingle(args[3]) : 0.0f;
+						extraDistance = args.Length > 3 ? Convert.ToSingle(args[3]) : 0.0f;
 					} catch (FormatException) {
 						OS.currentInstance.write("Argument format error.");
 						OS.currentInstance.write("nodepos config <pos>(int32) <total>(int32) [extradist](single)");
@@ -150,14 +151,16 @@ namespace Pathfinder {
 			if (!active) return;
 			delayCounter += deltaT.ElapsedGameTime.TotalMilliseconds;
 			if (delayCounter < frameDelay) return;
-			long loopArounds = (long) (delayCounter / frameDelay);
-			loopArounds %= (maximumPosition - minimumPosition + 1);
-			currentPosition = (int)loopArounds + minimumPosition;
+			long newPosition = (long) (delayCounter / frameDelay) + currentPosition;
+			newPosition %= maximumPosition - minimumPosition + 1;
+			currentPosition = (int)newPosition + minimumPosition;
 			delayCounter %= frameDelay;
+			repositionNode(currentPosition, total, extraDistance);
 		}
 
 		public static void onSessionStop() {
 			active = false;
+			currentPosition = 0;
 			delayCounter = 0;
 			rootNode = null;
 			leafNode = null;
