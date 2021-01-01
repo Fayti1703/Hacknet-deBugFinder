@@ -19,7 +19,7 @@ namespace Pathfinder {
 		private static int maximumPosition;
 		private static float extraDistance;
 
-		private const string allOps = "'root-node' / 'leaf-node' / 'start' / 'stop' / 'config' / 'once'";
+		private const string allOps = "'root-node' / 'leaf-node' / 'clear-debug' / 'start' / 'stop' / 'config' / 'once'";
 
 
 		public static void HacknetInterface(string[] args) {
@@ -34,6 +34,9 @@ namespace Pathfinder {
 					break;
 				case "leaf-node":
 					leafNode = OS.currentInstance.connectedComp;
+					break;
+				case "clear-debug":
+					Corporation.TestedPositions.Clear();
 					break;
 				case "start":
 					if (rootNode == null)

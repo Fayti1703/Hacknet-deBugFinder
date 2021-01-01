@@ -65,7 +65,7 @@ neededRank = {curFact.neededValue}");
 			} },
 			{ "launchopt", args => {
 
-				const string usage = "launchopt <debug/fc/web/hex> [on/off/toggle]";
+				const string usage = "launchopt <debug/fc/web/hex/nodepos> [on/off/toggle]";
 				
 				bool doValue(ref bool val) {
 					if (args.Length < 2)
@@ -104,6 +104,10 @@ neededRank = {curFact.neededValue}");
 					case "hex":
 						optName = "Hex Background";
 						res = doValue(ref Settings.DrawHexBackground);
+						break;
+					case "nodepos":
+						optName = "PositionNear Debugging";
+						res = doValue(ref Settings.debugDrawEnabled);
 						break;
 					default:
 						os.write($"Unknown launch option: '{args[0]}'");
