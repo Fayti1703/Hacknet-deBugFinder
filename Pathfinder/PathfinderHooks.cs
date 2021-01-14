@@ -273,6 +273,14 @@ namespace Pathfinder {
 			DebugLogger.Log(ComputerCrash, () => "HackerScript from '" + source.idName + "' shutting down because host computer crashed.");
 		}
 
+		
+		[Patch("Hacknet.ComputerLoader.readMission", flags: InjectFlags.PassParametersVal)]
+		public static void onDebugHook_MissionReadTrace(string filename) {
+			DebugLogger.Log(MissionLoadTrace, () => 
+				$"Mission Load '{filename}' Triggered:\n" + new System.Diagnostics.StackTrace(3)
+			);
+		}
+
 		[Patch(
 			"Hacknet.Computer.GetCodePortNumberFromDisplayPort", 
 			flags: InjectFlags.ModifyReturn | InjectFlags.PassParametersVal | InjectFlags.PassInvokingInstance
@@ -326,13 +334,6 @@ namespace Pathfinder {
 		[Patch("Hacknet.OS.Update", flags: InjectFlags.PassParametersVal)]
 		public static void onUpdateGame(GameTime deltaT, bool unfocused, bool covered) {
 			NearbyNodeOffsetViewer.onUpdate(deltaT);
-		}
-		
-		[Patch("Hacknet.ComputerLoader.readMission", flags: InjectFlags.PassParametersVal)]
-		public static void onDebugHook_MissionReadTrace(string filename) {
-			DebugLogger.Log(MissionLoadTrace, () => 
-				$"Mission Load '{filename}' Triggered:\n" + new System.Diagnostics.StackTrace(3)
-			);
 		}
 
 		[Patch("Hacknet.MainMenu.DrawBackgroundAndTitle",
