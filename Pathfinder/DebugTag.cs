@@ -61,6 +61,10 @@ namespace Pathfinder {
 		/**
 		 * Trace mission loading. <see cref="Hacknet.ComputerLoader.readMission"/>
 		 */
-		MissionLoadTrace
+		MissionLoadTrace,
+		/**
+		 * Port remapping-in-reverse <see cref="Hacknet.Computer.GetCodePortNumberFromDisplayPort"/>
+		 */
+		PortUnmapping
 	}
 }

@@ -273,6 +273,35 @@ namespace Pathfinder {
 			DebugLogger.Log(ComputerCrash, () => "HackerScript from '" + source.idName + "' shutting down because host computer crashed.");
 		}
 
+		[Patch(
+			"Hacknet.Computer.GetCodePortNumberFromDisplayPort", 
+			flags: InjectFlags.ModifyReturn | InjectFlags.PassParametersVal | InjectFlags.PassInvokingInstance
+		)]
+		public static bool onDebugHook_CPNFromDP(Computer self, out int _codePort, int displayPort) {	
+			int getCodePort() {
+				if (self.PortRemapping == null)
+					return displayPort;
+				IEnumerator<KeyValuePair<int, int>> enumerator = self.PortRemapping
+					.Where(mapping => mapping.Value == displayPort)
+					.GetEnumerator();
+
+				using (enumerator) {
+					if (enumerator.MoveNext()) {
+						return enumerator.Current.Key;
+					}
+				}
+
+				return displayPort;
+			}
+
+			int codePort = getCodePort();
+			
+			DebugLogger.Log(PortUnmapping, $"Mapped display port {displayPort} to code port {codePort}");
+			
+			_codePort = codePort;
+			return true;
+		}
+
 		#region Game Integration
 
 		[Patch("Hacknet.ProgramRunner.ExecuteProgram",

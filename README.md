@@ -115,3 +115,5 @@ a HackerScript dies due to a computer crashing or a computer boots back up.
 This tag logs a complete stack trace whenever a mission load begins.
 Capturing the stack trace is a rather slow operation, so **expect performance to suffer** during mission loads with this tag active.
 
+### PortUnmapping
+This tag logs the result of the displayed port to "code port" conversion whenever it happens.
