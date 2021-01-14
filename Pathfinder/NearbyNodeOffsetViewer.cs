@@ -53,9 +53,9 @@ namespace Pathfinder {
 				case "stop":
 					if (active) {
 						active = false;
+						OS.currentInstance.write("Stopped spinning the node. Current position: " + currentPosition);
 						currentPosition = 0;
 						delayCounter = 0;
-						OS.currentInstance.write("Stopped spinning the node.");
 					} else
 						OS.currentInstance.write("Not active.");
 					break;
