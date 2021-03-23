@@ -26,7 +26,7 @@ Six commands have been added to the in-game terminal:
     * `fc` (`-enablefc`)
     * `web` (`-disableweb`)
     * `hex` (`-disablebackground`)
-    * `nodepos` (no equivalent, previously unsuable debug feature)
+    * `nodepos` (no equivalent, previously unusable debug feature)
 * `nodeoffset`:
     Control the Nearby Node Offset Viewer, aka the `positionNear` debugger. Subcommands:
     * `nodeoffset root-node`: Set the current node as the root node (`target` attribute)
