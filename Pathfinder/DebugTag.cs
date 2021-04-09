@@ -79,7 +79,7 @@ namespace Pathfinder {
 		ActionExec,
 		/**
 		 * DeleteFile action.
-		 * <see cref="Hacknet.SADeleteFile.Trigger">
+		 * <see cref="Hacknet.SADeleteFile.Trigger" />
 		 */
 		DeleteFile
 	}
