@@ -390,12 +390,15 @@ namespace Pathfinder {
 					return false;
 				}
 
-				FileEntry fileEntry = folderAtPath.searchForFile(self.FileName);
-				if(fileEntry != null) {
-					folderAtPath.files.Remove(fileEntry);
-					DebugLogger.Log(DeleteFile, $"Deleted file: '{self.FilePath}'/'{self.FileName}'");
+				List<FileEntry> fileEntries = folderAtPath.files.FindAll(x => x.name == self.FileName);
+				DebugLogger.Log(DeleteFile, $"Found {fileEntries.Count} files matching  '{self.FilePath}'/'{self.FileName}'");
+				if(fileEntries.Count > 0) {
+					folderAtPath.files.Remove(fileEntries.First());
+					DebugLogger.Log(DeleteFile, "Removed one of them.");
 				} else
-					DebugLogger.Log(DeleteFile, $"Couldn't find file: '{self.FilePath}'/'{self.FileName}'");
+					DebugLogger.Log(DeleteFile, "Removed nothing, since nothing was present.");
+				List<FileEntry> postFileEntries = folderAtPath.files.FindAll(x => x.name == self.FileName);
+				DebugLogger.Log(DeleteFile, $"POST: Found {postFileEntries.Count} files matching  '{self.FilePath}'/'{self.FileName}'");
 			} catch(Exception e) {
 				DebugLogger.Log(DeleteFile, $"Exception! {e}");
 				throw;
