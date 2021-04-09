@@ -42,5 +42,8 @@ namespace Pathfinder.Attribute
             LocalIds = localsID;
             DependentSig = depSig;
         }
+
+        public string TypeName => MethodSig.Remove(MethodSig.LastIndexOf('.'));
+        public string MethodName => MethodSig.Substring(MethodSig.LastIndexOf('.') + 1);
     }
 }

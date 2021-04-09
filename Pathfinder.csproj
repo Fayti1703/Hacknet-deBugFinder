@@ -96,6 +96,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Pathfinder\Attribute\PatchAttribute.cs" />
+    <Compile Include="Pathfinder\Internal\Patcher\Except.cs" />
     <Compile Include="Pathfinder\Internal\Patcher\Executor.cs" />
     <Compile Include="Pathfinder\Util\Extensions.cs" />
     <Compile Include="Pathfinder\Util\XmlExtensions.cs" />
