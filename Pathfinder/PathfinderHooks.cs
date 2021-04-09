@@ -376,6 +376,33 @@ namespace Pathfinder {
 			DebugLogger.Log(ActionExec, $"Adding '{action.GetType().Name}' Action with {delay}s Delay to FastDelayHost.");
 		}
 
+		[Patch(
+			"Hacknet.SADeleteFile.Trigger",
+			17,
+			flags: InjectFlags.PassInvokingInstance | InjectFlags.ModifyReturn | InjectFlags.PassLocals,
+			localsID: new[] { 0, 1 }
+		)]
+		public static bool onDebugHook_SADF_Trigger(SADeleteFile self, ref OS os, ref Computer targetComputer) {
+			try {
+				Folder folderAtPath = Programs.getFolderAtPath(self.FilePath, os, targetComputer.files.root, true);
+				if(folderAtPath == null) {
+					DebugLogger.Log(DeleteFile, $"Couldn't find folder: '{self.FilePath}'");
+					return false;
+				}
+
+				FileEntry fileEntry = folderAtPath.searchForFile(self.FileName);
+				if(fileEntry != null)
+					folderAtPath.files.Remove(fileEntry);
+				else
+					DebugLogger.Log(DeleteFile, $"Couldn't find file: '{self.FilePath}/{self.FileName}'");
+			} catch(Exception e) {
+				DebugLogger.Log(DeleteFile, $"Exception! {e}");
+				throw;
+			}
+
+			return false;
+		}
+
 		#region Game Integration
 
 		[Patch("Hacknet.ProgramRunner.ExecuteProgram",

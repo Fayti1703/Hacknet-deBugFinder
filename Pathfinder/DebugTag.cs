@@ -76,6 +76,11 @@ namespace Pathfinder {
 		 * <seealso cref="Hacknet.FastDelayableActionSystem.AddAction"/>
 		 * <seealso cref="Hacknet.DelayableActionSystem.AddAction"/>
 		 */
-		ActionExec
+		ActionExec,
+		/**
+		 * DeleteFile action.
+		 * <see cref="Hacknet.SADeleteFile.Trigger">
+		 */
+		DeleteFile
 	}
 }
