@@ -383,7 +383,7 @@ namespace Pathfinder {
 			flags: InjectFlags.PassParametersVal | InjectFlags.ModifyReturn | InjectFlags.PassLocals,
 			localsID: new[] {1}
 		)]
-		public static bool onDebugHook_runProgram(
+		public static bool onRunProgram(
 			ref bool disconnects, ref bool returnFlag, object osObj, string[] args
 		) {
 			if (!DebuggingCommands.isValidCommand(args[0])) return false;
