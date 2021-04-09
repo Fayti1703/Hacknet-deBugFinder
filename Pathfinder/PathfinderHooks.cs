@@ -391,10 +391,11 @@ namespace Pathfinder {
 				}
 
 				FileEntry fileEntry = folderAtPath.searchForFile(self.FileName);
-				if(fileEntry != null)
+				if(fileEntry != null) {
 					folderAtPath.files.Remove(fileEntry);
-				else
-					DebugLogger.Log(DeleteFile, $"Couldn't find file: '{self.FilePath}/{self.FileName}'");
+					DebugLogger.Log(DeleteFile, $"Deleted file: '{self.FilePath}'/'{self.FileName}'");
+				} else
+					DebugLogger.Log(DeleteFile, $"Couldn't find file: '{self.FilePath}'/'{self.FileName}'");
 			} catch(Exception e) {
 				DebugLogger.Log(DeleteFile, $"Exception! {e}");
 				throw;
