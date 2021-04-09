@@ -99,6 +99,7 @@
     <Compile Include="Pathfinder\DebuggingCommands.cs" />
     <Compile Include="Pathfinder\DebugLogger.cs" />
     <Compile Include="Pathfinder\DebugTag.cs" />
+    <Compile Include="Pathfinder\Internal\Patcher\Except.cs" />
     <Compile Include="Pathfinder\Internal\Patcher\Executor.cs" />
     <Compile Include="Pathfinder\NearbyNodeOffsetViewer.cs" />
     <Compile Include="Pathfinder\Util\Extensions.cs" />
