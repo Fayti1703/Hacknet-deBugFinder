@@ -65,6 +65,17 @@ namespace Pathfinder {
 		/**
 		 * Port remapping-in-reverse <see cref="Hacknet.Computer.GetCodePortNumberFromDisplayPort"/>
 		 */
-		PortUnmapping
+		PortUnmapping,
+		/**
+		 * Action queuing and execution.
+		 * <see cref="Hacknet.SerializableAction.Trigger"/>
+		 * <seealso cref="Hacknet.RunnableConditionalActions.Update"/>
+		 * <seealso cref="Hacknet.FastDelayableActionSystem.Update"/>
+		 * <seealso cref="Hacknet.DelayableActionSystem.Update"/>
+		 * <seealso cref="Hacknet.Factions.CustomFactionAction.Trigger"/>
+		 * <seealso cref="Hacknet.FastDelayableActionSystem.AddAction"/>
+		 * <seealso cref="Hacknet.DelayableActionSystem.AddAction"/>
+		 */
+		ActionExec
 	}
 }

@@ -1,9 +1,11 @@
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Xml;
 using Hacknet;
 using Hacknet.Effects;
+using Hacknet.Factions;
 using Hacknet.Gui;
 using Hacknet.Mission;
 using Microsoft.Xna.Framework;
@@ -308,6 +310,70 @@ namespace Pathfinder {
 			
 			_codePort = codePort;
 			return true;
+		}
+
+		[Patch(
+			"Hacknet.RunnableConditionalActions.Update",
+			39,
+			flags: InjectFlags.PassLocals,
+			localsID: new[] { 1, 2 }
+		)]
+		public static void onDebugHook_RCA_Update(ref SerializableConditionalActionSet setToTrigger, ref int actionIndex) {
+			SerializableAction actionToTrigger = setToTrigger.Actions[actionIndex];
+			DebugLogger.Log(ActionExec, $"Triggering '{actionToTrigger.GetType().Name}' Action from Condition hit.");
+		}
+
+		[Patch(
+			"Hacknet.FastDelayableActionSystem.Update",
+			37,
+			flags: InjectFlags.PassLocals,
+			localsID: new[] { 2 }
+		)]
+		public static void onDebugHook_FDAS_Update(ref SerializableAction actionToTrigger) {
+			DebugLogger.Log(ActionExec, $"Triggering '{actionToTrigger.GetType().Name}' Action from FastDelayHost.");
+		}
+		
+		[Patch(
+			"Hacknet.DelayableActionSystem.Update",
+			47,
+			flags: InjectFlags.PassLocals,
+			localsID: new[] { 4 }
+		)]
+		public static void onDebugHook_DAS_Update(ref string encryptedData) {
+			if(!DebugLogger.isEnabled(ActionExec)) return; /* optimize */
+			string[] decryptData = FileEncrypter.DecryptString(encryptedData, DelayableActionSystem.EncryptionPass);
+			Stream dataStream = Utils.GenerateStreamFromString(decryptData[2]);
+			XmlReader reader = XmlReader.Create(dataStream);
+			SerializableAction actionToTrigger = SerializableAction.Deserialize(reader);
+			reader.Close();
+			DebugLogger.Log(ActionExec, $"Triggering '{actionToTrigger.GetType().Name}' Action from DelayHost.");
+		}
+
+		[Patch(
+			"Hacknet.Factions.CustomFactionAction.Trigger",
+			4,
+			flags: InjectFlags.PassInvokingInstance | InjectFlags.PassLocals,
+			localsID: new[] { 0 }
+		)]
+		public static void onDebugHook_CFA_Trigger(CustomFactionAction self, ref int actionIndex) {
+			SerializableAction actionToTrigger = self.TriggerActions[actionIndex];
+			DebugLogger.Log(ActionExec, $"Triggering '{actionToTrigger.GetType().Name}' Action from CustomFactionAction.");
+		}
+		
+		[Patch(
+			"Hacknet.DelayableActionSystem.AddAction",
+			flags: InjectFlags.PassParametersVal
+		)]
+		public static void onDebugHook_DAS_AddAction(SerializableAction action, float delay) {
+			DebugLogger.Log(ActionExec, $"Adding '{action.GetType().Name}' Action with {delay}s Delay to DelayHost.");
+		}
+
+		[Patch(
+			"Hacknet.FastDelayableActionSystem.AddAction",
+			flags: InjectFlags.PassParametersVal
+		)]
+		public static void onDebugHook_FDAS_AddAction(SerializableAction action, float delay) {
+			DebugLogger.Log(ActionExec, $"Adding '{action.GetType().Name}' Action with {delay}s Delay to FastDelayHost.");
 		}
 
 		#region Game Integration

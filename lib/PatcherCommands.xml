@@ -17,5 +17,8 @@
 		<type name="Computer">
 			<field name="os" access="internal" />
 		</type>
+		<type name="DelayableActionSystem">
+			<field name="EncryptionPass" access="internal" />
+		</type>
 	</namespace>
 </PatcherCommands>
