@@ -37,7 +37,7 @@ namespace Pathfinder {
 		}
 
 		public void Dispose() {
-			Console.WriteLine("[CACHE] Disposing '{}'", path);
+			Console.WriteLine("[CACHE] Disposing '{0}'", path);
 			if(this != activeTheme)
 				BackgroundTexture?.Dispose();
 			else
@@ -45,14 +45,14 @@ namespace Pathfinder {
 		}
 
 		public static CachedTheme preload(string themeDataPath) {
-			Console.WriteLine("[CACHE] Preloading '{}'", themeDataPath);
+			Console.WriteLine("[CACHE] Preloading '{0}'", themeDataPath);
 			CachedTheme cache = load(themeDataPath);
 			cache.refCount = 1;
 			return cache;
 		}
 
 		public static CachedTheme postLoad(string themeDataPath) {
-			Console.WriteLine("[CACHE] Postloading '{}'", themeDataPath);
+			Console.WriteLine("[CACHE] Postloading '{0}'", themeDataPath);
 			CachedTheme cache = load(themeDataPath);
 			cache.refCount = -1;
 			return cache;
