@@ -1,5 +1,8 @@
 
 using System;
+using System.IO;
+using System.Reflection;
+using System.Xml;
 using Hacknet;
 using Hacknet.Effects;
 using Hacknet.Gui;
@@ -13,6 +16,45 @@ namespace Pathfinder {
 	/// </summary>
 	/// Place all functions to be hooked into Hacknet here
 	public static class PathfinderHooks {
+
+		[Patch("Hacknet.CustomTheme.LoadIntoOS",
+			flags: InjectFlags.PassInvokingInstance | InjectFlags.PassParametersVal | InjectFlags.ModifyReturn
+		)]
+		public static bool onLoadThemeIntoOS(CustomTheme self, object osObj) {
+			OS os = (OS) osObj;
+			FieldInfo[] fields = typeof(CustomTheme).GetFields();
+			foreach(FieldInfo field in fields) {
+				FieldInfo osField = typeof(OS).GetField(field.Name);
+				if(osField != null)
+					osField.SetValue(os, field.GetValue(self));
+			}
+			return true;
+		}
+
+		[Patch("Hacknet.Utils.DeserializeObject",
+			flags: InjectFlags.PassParametersVal | InjectFlags.ModifyReturn
+		)]
+		public static bool onDeserializeGenericObject(out object retVal, Stream xmlStream, Type targetType) {
+			using XmlReader reader = XmlReader.Create(xmlStream);
+			object instance = Activator.CreateInstance(targetType);
+			XmlNamespaceManager nsManager = new XmlNamespaceManager(new NameTable());
+			while(!reader.EOF) {
+				if(!string.IsNullOrWhiteSpace(reader.Name)) {
+					FieldInfo field = targetType.GetField(reader.Name);
+					if(field != null) {
+						object value = null;
+						if(field.FieldType == typeof(Color))
+							value = Utils.convertStringToColor(reader.ReadElementContentAsString());
+						value ??= reader.ReadElementContentAs(field.FieldType, nsManager);
+						field.SetValue(instance, value);
+					}
+				}
+				reader.Read();
+			}
+			retVal = instance;
+			return true;
+		}
+
 		[Patch("Hacknet.MainMenu.DrawBackgroundAndTitle",
 			7,
 			flags: InjectFlags.PassInvokingInstance | InjectFlags.ModifyReturn | InjectFlags.PassLocals,
