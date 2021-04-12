@@ -387,7 +387,7 @@ namespace Pathfinder {
 				Folder folderAtPath = Programs.getFolderAtPath(self.FilePath, os, targetComputer.files.root, true);
 				if(folderAtPath == null) {
 					DebugLogger.Log(DeleteFile, $"Couldn't find folder: '{self.FilePath}'");
-					return false;
+					return true;
 				}
 
 				List<FileEntry> fileEntries = folderAtPath.files.FindAll(x => x.name == self.FileName);
@@ -404,7 +404,7 @@ namespace Pathfinder {
 				throw;
 			}
 
-			return false;
+			return true;
 		}
 
 		#region Game Integration
