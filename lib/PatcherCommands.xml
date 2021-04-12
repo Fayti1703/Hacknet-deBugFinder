@@ -1,3 +1,9 @@
 <?xml version="1.0" encoding="utf-8" ?>
 <PatcherCommands xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="TaskList.xsd">
+	<namespace name="Hacknet">
+		<type name="MainMenu">
+			<field name="titleColor" access="internal" />
+			<field name="titleFont" access="internal" />
+		</type>
+	</namespace>
 </PatcherCommands>
