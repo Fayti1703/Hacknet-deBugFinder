@@ -47,7 +47,7 @@ namespace Pathfinder {
 		public static bool onThemeSwap(object osObject, string customThemePath) {
 			OS os = (OS) osObject;
 			if(!themeCache.TryGetValue(customThemePath, out CachedTheme cache)) {
-				cache = CachedTheme.postLoad(Utils.GetFileLoadPrefix() + customThemePath);
+				cache = CachedTheme.postLoad(customThemePath);
 				themeCache.Add(customThemePath, cache);
 			}
 			cache.ApplyToOS(os);

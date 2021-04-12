@@ -59,7 +59,7 @@ namespace Pathfinder {
 		}
 
 		private static CachedTheme load(string themeDataPath) {
-			CustomTheme data = CustomTheme.Deserialize(themeDataPath);
+			CustomTheme data = CustomTheme.Deserialize(Utils.GetFileLoadPrefix() + themeDataPath);
 			string path = Utils.GetFileLoadPrefix() + data.backgroundImagePath;
 			if (!File.Exists(path))
 				path = "Content/" + data.backgroundImagePath;
