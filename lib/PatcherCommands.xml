@@ -5,5 +5,17 @@
 			<field name="titleColor" access="internal" />
 			<field name="titleFont" access="internal" />
 		</type>
+		<type name="ThemeManager">
+			<field name="backgroundImage" access="internal" />
+			<field name="backgroundNeedsDisposal" access="internal" />
+			<field name="customBackgroundImageLoadPath" access="internal" />
+			<method name="switchThemeLayout" access="internal" />
+		</type>
+		<namespace name="Effects">
+			<type name="ActiveEffectsUpdater">
+				<field name="oldThemePath" access="internal" />
+				<field name="newThemePath" access="internal" />
+			</type>
+		</namespace>
 	</namespace>
 </PatcherCommands>

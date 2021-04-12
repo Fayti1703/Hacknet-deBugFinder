@@ -1,7 +1,9 @@
 
 using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Reflection;
+using System.Runtime.CompilerServices;
 using System.Xml;
 using Hacknet;
 using Hacknet.Effects;
@@ -16,6 +18,75 @@ namespace Pathfinder {
 	/// </summary>
 	/// Place all functions to be hooked into Hacknet here
 	public static class PathfinderHooks {
+
+		private static readonly Dictionary<string, CachedTheme> themeCache = new Dictionary<string, CachedTheme>();
+
+		[Patch(
+			"Hacknet.SASwitchToTheme.Trigger",
+			flags: InjectFlags.PassInvokingInstance
+		)]
+		public static void onThemeSwitchTrigger(SASwitchToTheme self) {
+			if(Enum.TryParse(self.ThemePathOrName, out OSTheme _))
+				return;
+			/* If already triggered (self.Delay ==~ 1.0f), don't increment refcount */
+			if(Math.Abs(self.Delay + 1f) < 0.1f) return;
+			if(!themeCache.TryGetValue(self.ThemePathOrName, out CachedTheme cache)) {
+				cache = CachedTheme.preload(self.ThemePathOrName);
+				themeCache.Add(self.ThemePathOrName, cache);
+			} else {
+				cache.refCount++;
+				if(cache.refCount == 0)
+					cache.refCount = 1;
+			}
+		}
+
+		[Patch(
+			"Hacknet.ThemeManager.switchTheme",
+			flags: InjectFlags.PassParametersVal | InjectFlags.ModifyReturn
+		)]
+		public static bool onThemeSwap(object osObject, string customThemePath) {
+			OS os = (OS) osObject;
+			if(!themeCache.TryGetValue(customThemePath, out CachedTheme cache)) {
+				cache = CachedTheme.postLoad(Utils.GetFileLoadPrefix() + customThemePath);
+				themeCache.Add(customThemePath, cache);
+			}
+			cache.ApplyToOS(os);
+			os.RefreshTheme();
+			return true;
+		}
+
+		private static void cacheClean(string themePath, bool refDown) {
+			if(!themeCache.TryGetValue(themePath, out CachedTheme cache)) return;
+			if(refDown) cache.refCount--;
+			if(cache.refCount > 0) return;
+			themeCache.Remove(themePath);
+			cache.Dispose();
+		}
+
+		[Patch(
+			"Hacknet.Effects.ActiveEffectsUpdater.CompleteThemeSwap",
+			flags: InjectFlags.PassInvokingInstance | InjectFlags.PassParametersVal | InjectFlags.ModifyReturn
+		)]
+		public static bool onCompleteThemeSwap(ActiveEffectsUpdater self, object osObject) {
+			OS os = (OS) osObject;
+			bool bypass = false;
+			if(self.newThemePath != null) {
+				ThemeManager.setThemeOnComputer(os.thisComputer, self.newThemePath);
+				ThemeManager.switchTheme(os, self.newThemePath);
+				cacheClean(self.newThemePath,  refDown: true);
+				CachedTheme cache = themeCache[self.newThemePath];
+				cache.refCount--;
+				if(cache.refCount <= 0) {
+					themeCache.Remove(self.newThemePath);
+					cache.Dispose();
+				}
+				bypass = true;
+			}
+			
+			cacheClean(self.oldThemePath, refDown: false);
+
+			return bypass;
+		}
 
 		[Patch("Hacknet.CustomTheme.LoadIntoOS",
 			flags: InjectFlags.PassInvokingInstance | InjectFlags.PassParametersVal | InjectFlags.ModifyReturn
