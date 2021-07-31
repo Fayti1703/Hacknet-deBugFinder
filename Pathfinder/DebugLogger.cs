@@ -96,11 +96,7 @@ namespace Pathfinder {
 				}
 				case 1:
 					if (args[0].ToLowerInvariant() == "list") {
-						string allTags = string.Join(",\n",
-							Enum.GetNames(typeof(DebugTag)).Partition(16).Select(
-								inner => string.Join(", ", inner)
-							)
-						);
+						string allTags = string.Join(",", Enum.GetNames(typeof(DebugTag)));
 						os.write("Available debug tags: " + allTags);
 						break;
 					}
