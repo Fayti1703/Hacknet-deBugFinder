@@ -2,7 +2,7 @@ using System;
 using System.Collections.Generic;
 using Hacknet;
 
-namespace Pathfinder {
+namespace DeBugFinder {
 	public static class DebuggingCommands {
 
 		private static readonly Dictionary<string, Action<string[]>> commands = new Dictionary<string, Action<string[]>> {

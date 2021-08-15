@@ -7,7 +7,7 @@ using Mono.Cecil;
 using Mono.Cecil.Cil;
 using Mono.Cecil.Inject;
 
-namespace PathfinderPatcher
+namespace DeBugFinderPatcher
 {
     internal static class Extensions
     {

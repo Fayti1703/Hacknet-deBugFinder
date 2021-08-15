@@ -7,7 +7,7 @@ using Mono.Cecil;
 using Mono.Cecil.Cil;
 using Mono.Cecil.Inject;
 
-namespace PathfinderPatcher
+namespace DeBugFinderPatcher
 {
     public enum AccessLevel
     {
@@ -22,7 +22,7 @@ namespace PathfinderPatcher
     // This will be the modloader.
     public static class PatcherProgram
     {
-        const string PATCH_ATTRIBUTE_CLASSPATH = "Pathfinder.Attribute.PatchAttribute";
+        const string PATCH_ATTRIBUTE_CLASSPATH = "DeBugFinder.Attribute.PatchAttribute";
 
         internal static int Main(string[] args)
         {
@@ -36,7 +36,7 @@ namespace PathfinderPatcher
             var skipLaunchers = false;
             foreach (var arg in args)
             {
-                if (arg.Equals("-pathfinderDir")) // the Pathfinder.dll's directory
+                if (arg.Equals("-debugfinderDir")) // the DeBugFinder.dll's directory
                     pathfinderDir = args[index + 1] + Path.DirectorySeparatorChar;
                 if (arg.Equals("-exeDir")) // the Hacknet.exe's directory
                     exeDir = args[index + 1] + separator;
@@ -51,12 +51,12 @@ namespace PathfinderPatcher
                 if(!skipLaunchers) {
                    if (File.Exists(exeDir + "Hacknet"))
                    {
-                        File.Copy(exeDir + "Hacknet", exeDir + "HacknetPathfinder", true);
+                        File.Copy(exeDir + "Hacknet", exeDir + "Hacknet-deBugFinder", true);
 
                         var txt = File.ReadAllText(exeDir + "Hacknet");
-                        txt = txt.Replace("Hacknet", "HacknetPathfinder");
+                        txt = txt.Replace("Hacknet", "Hacknet-deBugFinder");
 
-                       File.WriteAllText(exeDir + "HacknetPathfinder", txt);
+                       File.WriteAllText(exeDir + "Hacknet-deBugFinder", txt);
                    }
 
                    foreach (var n in new string[]{
@@ -65,7 +65,7 @@ namespace PathfinderPatcher
                        exeDir + "Hacknet.bin.osx"
                     })
                     if (File.Exists(n))
-                        File.Copy(n, exeDir + "HacknetPathfinder.bin" + Path.GetExtension(n), true);
+                        File.Copy(n, exeDir + "Hacknet-deBugFinder.bin" + Path.GetExtension(n), true);
                 }
                 // Loads Hacknet.exe's assembly
                 gameAssembly = LoadAssembly(exeDir + "Hacknet.exe");
@@ -80,8 +80,8 @@ namespace PathfinderPatcher
 
             try
             {
-                // Adds Pathfinder internal attribute hack
-                gameAssembly.AddAssemblyAttribute<InternalsVisibleToAttribute>("Pathfinder");
+                // Adds DeBugFinder internal attribute hack
+                gameAssembly.AddAssemblyAttribute<InternalsVisibleToAttribute>("DeBugFinder");
                 // Removes internal visibility from types
                 gameAssembly.RemoveInternals();
 
@@ -94,8 +94,8 @@ namespace PathfinderPatcher
             }
             catch (Exception ex)
             {
-                HandleExeception("Failure during Hacknet Pathfinder Assembly Tweaks:", ex);
-                gameAssembly?.Write("HacknetPathfinder.exe");
+                HandleExeception("Failure during Hacknet DeBugFinder Assembly Tweaks:", ex);
+                gameAssembly?.Write("Hacknet-deBugFinder.exe");
                 return 3;
             }
             if(!spitOutHacknetOnly) try
@@ -105,19 +105,19 @@ namespace PathfinderPatcher
                         gameAssembly.Write(stream);
                         System.Reflection.Assembly.Load(stream.GetBuffer());
                         var assm = System.Reflection.Assembly.LoadFrom(
-                            new FileInfo(string.IsNullOrEmpty(pathfinderDir) ? "Pathfinder.dll" : pathfinderDir + "Pathfinder.dll").FullName);
-                        var t = assm.GetType("Pathfinder.Internal.Patcher.Executor");
+                            new FileInfo(string.IsNullOrEmpty(pathfinderDir) ? "DeBugFinder.dll" : pathfinderDir + "DeBugFinder.dll").FullName);
+                        var t = assm.GetType("DeBugFinder.Internal.Patcher.Executor");
                         t.GetMethod("Main", System.Reflection.BindingFlags.Static | System.Reflection.BindingFlags.NonPublic)
                             .Invoke(null, new object[] { gameAssembly });
                     }
                 }
                 catch(Exception ex)
                 {
-                    HandleExeception("Failure during Pathfinder.dll's Patch Execution:", ex);
+                    HandleExeception("Failure during DeBugFinder.dll's Patch Execution:", ex);
                     gameAssembly.Write("HacknetPathfinder.exe");
                     return 1;
                 }
-            gameAssembly.Write("HacknetPathfinder.exe");
+            gameAssembly.Write("Hacknet-deBugFinder.exe");
             return 0;
         }
 

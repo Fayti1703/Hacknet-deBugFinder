@@ -4,9 +4,9 @@ using System.Diagnostics;
 using System.Text;
 using Mono.Cecil;
 using Mono.Cecil.Inject;
-using static PathfinderPatcher.AccessLevel;
+using static DeBugFinderPatcher.AccessLevel;
 
-namespace PathfinderPatcher
+namespace DeBugFinderPatcher
 {
     public abstract class GenericTypeTaskItem
     {

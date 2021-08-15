@@ -3,9 +3,9 @@ using System.Collections.Generic;
 using System.Linq;
 using Hacknet;
 using JetBrains.Annotations;
-using static Pathfinder.DebugTag;
+using static DeBugFinder.DebugTag;
 
-namespace Pathfinder {
+namespace DeBugFinder {
 	public static class DebugLogger {
 		[NotNull]
 		private static readonly HashSet<DebugTag> enabledTags = new HashSet<DebugTag> {

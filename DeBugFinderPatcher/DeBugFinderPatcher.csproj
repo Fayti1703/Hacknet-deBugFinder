@@ -7,8 +7,8 @@
     <ProjectGuid>{FCD7FD47-6B38-47F4-9761-FC4290110125}</ProjectGuid>
     <OutputType>Exe</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>PathfinderPatcher</RootNamespace>
-    <AssemblyName>PathfinderPatcher</AssemblyName>
+    <RootNamespace>DeBugFinderPatcher</RootNamespace>
+    <AssemblyName>DeBugFinderPatcher</AssemblyName>
     <TargetFrameworkVersion>v4.5.1</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <PublishUrl>publish\</PublishUrl>

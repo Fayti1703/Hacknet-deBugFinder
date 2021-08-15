@@ -1,7 +1,7 @@
 using System;
-using Pathfinder.Attribute;
+using DeBugFinder.Attribute;
 
-namespace Pathfinder.Internal.Patcher {
+namespace DeBugFinder.Internal.Patcher {
 	public class PatchingException : Exception {
 
 		public PatchAttribute CausedBy {

@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using Mono.Cecil;
 
-namespace PathfinderPatcher
+namespace DeBugFinderPatcher
 {
     public class FieldBuilder
     {

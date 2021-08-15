@@ -2,12 +2,12 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
+using DeBugFinder.Attribute;
 using Mono.Cecil;
 using Mono.Cecil.Inject;
-using Pathfinder.Attribute;
-using Pathfinder.Util;
+using DeBugFinder.Util;
 
-namespace Pathfinder.Internal.Patcher
+namespace DeBugFinder.Internal.Patcher
 {
     internal static class Executor
     {
@@ -36,7 +36,7 @@ namespace Pathfinder.Internal.Patcher
             var depDict = new Dictionary<string, List<MethodStore>>();
 
             // Retrieve the hook methods
-            var hooks = typeof(PathfinderHooks);
+            var hooks = typeof(DeBugFinderHooks);
             MethodDefinition method;
             PatchAttribute attrib = null;
             string sig;

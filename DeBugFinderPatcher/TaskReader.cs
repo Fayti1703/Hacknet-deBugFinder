@@ -4,7 +4,7 @@ using System.Diagnostics;
 using System.Xml;
 using static System.Xml.XmlNodeType;
 
-namespace PathfinderPatcher
+namespace DeBugFinderPatcher
 {
     public static class TaskReader
     {

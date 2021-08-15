@@ -3,7 +3,7 @@ using System;
 using Hacknet;
 using Microsoft.Xna.Framework;
 
-namespace Pathfinder {
+namespace DeBugFinder {
 	public static class NearbyNodeOffsetViewer {
 
 		private static bool active;

@@ -1,6 +1,6 @@
 using System.Xml;
 
-namespace Pathfinder.Util {
+namespace DeBugFinder.Util {
 	public static class XmlExtensions {
 		public static string toLogString(this XmlReader rdr) {
 			return rdr.EOF

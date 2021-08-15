@@ -2,7 +2,7 @@
 using System.Reflection;
 using JetBrains.Annotations;
 
-namespace Pathfinder.Attribute
+namespace DeBugFinder.Attribute
 {
     [MeansImplicitUse]
     [AttributeUsage(AttributeTargets.Method, AllowMultiple = false)]

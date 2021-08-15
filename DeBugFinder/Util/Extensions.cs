@@ -7,7 +7,7 @@ using System.Text;
 using Hacknet;
 using Microsoft.Xna.Framework.Graphics;
 
-namespace Pathfinder.Util
+namespace DeBugFinder.Util
 {
     public static class Extensions
     {

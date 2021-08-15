@@ -1,6 +1,6 @@
 using Hacknet;
 
-namespace Pathfinder {
+namespace DeBugFinder {
 	public enum DebugTag {
 		/**
 		 * Intercepted Hacknet errors. This may come from a lot of places. <see cref="Hacknet.Utils.AppendToErrorFile" />
