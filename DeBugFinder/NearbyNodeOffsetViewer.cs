@@ -12,10 +12,10 @@ namespace DeBugFinder {
 		private static Computer? leafNode;
 
 		private static double frameDelay = 16.66;
-		private static double delayCounter = 0;
+		private static double delayCounter;
 		private static int total;
 		private static int currentPosition;
-		private static int minimumPosition = 0;
+		private static int minimumPosition;
 		private static int maximumPosition;
 		private static float extraDistance;
 

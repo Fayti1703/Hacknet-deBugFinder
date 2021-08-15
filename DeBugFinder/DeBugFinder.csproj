@@ -20,8 +20,6 @@
     <ConsolePause>false</ConsolePause>
     <PlatformTarget>x86</PlatformTarget>
     <NoStdLib>false</NoStdLib>
-    <NoWarn>
-    </NoWarn>
     <LangVersion>Latest</LangVersion>
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
   </PropertyGroup>
@@ -33,28 +31,6 @@
     <DocumentationFile>lib\Pathfinder.xml</DocumentationFile>
     <ConsolePause>false</ConsolePause>
     <PlatformTarget>x86</PlatformTarget>
-    <CustomCommands>
-      <CustomCommands>
-        <Command>
-          <type>BeforeBuild</type>
-          <command>lib\PathfinderPatcher.exe -exeDir "C:\Program Files (x86)\Steam\steamapps\common\Hacknet" -spit</command>
-          <workingdir>lib\</workingdir>
-          <externalConsole>True</externalConsole>
-        </Command>
-        <Command>
-          <type>AfterBuild</type>
-          <command>lib\PathfinderPatcher.exe -pathfinderDir "..\lib" -exeDir "C:\Program Files (x86)\Steam\steamapps\common\Hacknet"</command>
-          <workingdir>lib\</workingdir>
-          <externalConsole>True</externalConsole>
-        </Command>
-        <Command>
-          <type>AfterBuild</type>
-          <command>zipjs.bat zipItem -source ./PathfinderPatcher.exe -source ./Pathfinder.dll -source ./Mono.Cecil.dll -source ./Mono.Cecil.Inject.dll -source ./Cecil_LICENSE.txt -source ./Cecil_Inject_LICENSE.txt -source ../README.md -destination ../releases/Pathfinder.Release.V_.zip -keep yes -force yes</command>
-          <workingdir>lib\</workingdir>
-          <externalConsole>True</externalConsole>
-        </Command>
-      </CustomCommands>
-    </CustomCommands>
     <NoWarn>0649</NoWarn>
     <CheckForOverflowUnderflow>true</CheckForOverflowUnderflow>
     <NoStdLib>false</NoStdLib>
@@ -64,57 +40,56 @@
   <ItemGroup>
     
     <Reference Include="JetBrains.Annotations, Version=2020.1.0.0, Culture=neutral, PublicKeyToken=1010a0d8d6380325">
-      <HintPath>packages\JetBrains.Annotations.2020.1.0\lib\net20\JetBrains.Annotations.dll</HintPath>
+      <HintPath>..\packages\JetBrains.Annotations.2020.1.0\lib\net20\JetBrains.Annotations.dll</HintPath>
       <Private>True</Private>
     </Reference>
     
     <Reference Include="System" />
     <Reference Include="System.Xml" />
     <Reference Include="AlienFXManagedWrapper3.5">
-      <HintPath>lib\AlienFXManagedWrapper3.5.dll</HintPath>
+      <HintPath>..\lib\AlienFXManagedWrapper3.5.dll</HintPath>
       <Private>False</Private>
     </Reference>
     <Reference Include="FNA">
-      <HintPath>lib\FNA.dll</HintPath>
+      <HintPath>..\lib\FNA.dll</HintPath>
       <Private>False</Private>
     </Reference>
     <Reference Include="Steamworks.NET">
-      <HintPath>lib\Steamworks.NET.dll</HintPath>
+      <HintPath>..\lib\Steamworks.NET.dll</HintPath>
       <Private>False</Private>
     </Reference>
     <Reference Include="System.Configuration" />
     <Reference Include="Mono.Cecil">
-      <HintPath>lib\Mono.Cecil.dll</HintPath>
+      <HintPath>..\lib\Mono.Cecil.dll</HintPath>
     </Reference>
     <Reference Include="Mono.Cecil.Inject">
-      <HintPath>lib\Mono.Cecil.Inject.dll</HintPath>
+      <HintPath>..\lib\Mono.Cecil.Inject.dll</HintPath>
     </Reference>
     <Reference Include="Hacknet-deBugFinder">
-      <HintPath>lib\Hacknet-deBugFinder.exe</HintPath>
+      <HintPath>..\lib\Hacknet-deBugFinder.exe</HintPath>
       <Private>False</Private>
     </Reference>
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="DeBugFinder\Attribute\PatchAttribute.cs" />
-    <Compile Include="DeBugFinder\DebuggingCommands.cs" />
-    <Compile Include="DeBugFinder\DebugLogger.cs" />
-    <Compile Include="DeBugFinder\DebugTag.cs" />
-    <Compile Include="DeBugFinder\Internal\Patcher\Except.cs" />
-    <Compile Include="DeBugFinder\Internal\Patcher\Executor.cs" />
-    <Compile Include="DeBugFinder\NearbyNodeOffsetViewer.cs" />
-    <Compile Include="DeBugFinder\Util\Extensions.cs" />
-    <Compile Include="DeBugFinder\Util\XmlExtensions.cs" />
+    <Compile Include="Attribute\PatchAttribute.cs" />
+    <Compile Include="DebuggingCommands.cs" />
+    <Compile Include="DebugLogger.cs" />
+    <Compile Include="DebugTag.cs" />
+    <Compile Include="Internal\Patcher\Except.cs" />
+    <Compile Include="Internal\Patcher\Executor.cs" />
+    <Compile Include="NearbyNodeOffsetViewer.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="DeBugFinder\DeBugFinderHooks.cs" />
-    <Compile Include="GlobalSuppressions.cs" />
+    <Compile Include="Util\Extensions.cs" />
+    <Compile Include="Util\XmlExtensions.cs" />
+    <Compile Include="DeBugFinderHooks.cs" />
   </ItemGroup>
   <ItemGroup>
-    <Content Include="lib\PatcherCommands.xml" />
-    <Content Include="lib\TaskList.xsd" />
+    <Content Include="..\lib\PatcherCommands.xml" />
+    <Content Include="..\lib\TaskList.xsd" />
   </ItemGroup>
   <ItemGroup />
   <ItemGroup>
-    <None Include="packages.config" />
+    <None Include="..\packages.config" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <PropertyGroup>

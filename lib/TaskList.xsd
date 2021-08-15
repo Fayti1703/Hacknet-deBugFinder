@@ -146,7 +146,7 @@
 					<xs:documentation>
 						Accessible from this class and any subclasses that are in this assembly and any assemblies explicitly permitted to access internals.
 
-						In otherwords, to be able to access this thing, you must have <code>protected</code> AND <code>internal</code> access.
+						In other words, to be able to access this thing, you must have <code>protected</code> AND <code>internal</code> access.
 					</xs:documentation>
 				</xs:annotation>
 			</xs:enumeration>

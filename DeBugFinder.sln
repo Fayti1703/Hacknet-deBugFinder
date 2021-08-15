@@ -1,7 +1,7 @@
 
 Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 15
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DeBugFinder", "DeBugFinder.csproj", "{F321B880-D4FC-4DF6-8CE3-666B29EF41C7}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DeBugFinder", "DeBugFinder\DeBugFinder.csproj", "{F321B880-D4FC-4DF6-8CE3-666B29EF41C7}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DeBugFinderPatcher", "DeBugFinderPatcher\DeBugFinderPatcher.csproj", "{FCD7FD47-6B38-47F4-9761-FC4290110125}"
 EndProject

@@ -1,11 +1,10 @@
 ﻿using System;
-using System.Reflection;
 using JetBrains.Annotations;
 
 namespace DeBugFinder.Attribute
 {
     [MeansImplicitUse]
-    [AttributeUsage(AttributeTargets.Method, AllowMultiple = false)]
+    [AttributeUsage(AttributeTargets.Method)]
     public class PatchAttribute : System.Attribute
     {
         [Flags]
@@ -24,23 +23,19 @@ namespace DeBugFinder.Attribute
             All_Ref = 0x5E
         }
 
-        public string MethodSig;
-        public int Offset;
-        public object Tag;
-        public int Flags;
-        public bool After;
-        public int[] LocalIds;
-        public string DependentSig;
+        public readonly string MethodSig;
+        public readonly int ILIndex;
+        public readonly int Flags;
+        public readonly bool After;
+        public readonly int[] LocalIds;
 
-        public PatchAttribute(string sig, int offset = 0, object tag = null, InjectFlags flags = 0, bool before = false, int[] localsID = null, string depSig = null)
+        public PatchAttribute(string sig, int ilIndex = 0, object tag = null, InjectFlags flags = 0, bool before = false, int[] localsID = null, string depSig = null)
         {
-            MethodSig = sig;
-            Offset = offset;
-            Tag = tag;
-            Flags = (int)flags;
-            After = before;
-            LocalIds = localsID;
-            DependentSig = depSig;
+            this.MethodSig = sig;
+            this.ILIndex = ilIndex;
+            this.Flags = (int)flags;
+            this.After = before;
+            this.LocalIds = localsID;
         }
 
         public string TypeName => MethodSig.Remove(MethodSig.LastIndexOf('.'));
