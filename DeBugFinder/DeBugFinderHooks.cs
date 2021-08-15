@@ -14,6 +14,8 @@ using DeBugFinder.Util;
 using static DeBugFinder.Attribute.PatchAttribute;
 using static DeBugFinder.DebugTag;
 
+#pragma warning disable 1591
+
 namespace DeBugFinder {
 	/// <summary>
 	/// Function hooks for the Pathfinder hook system
