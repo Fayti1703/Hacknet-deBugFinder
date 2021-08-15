@@ -126,3 +126,5 @@ tools/*
 !tools/packages.config
 
 **/.idea
+
+run.sh.config
