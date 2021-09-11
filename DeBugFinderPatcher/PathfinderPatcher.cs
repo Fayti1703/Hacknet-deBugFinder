@@ -27,20 +27,44 @@ namespace DeBugFinderPatcher
             char separator = Path.DirectorySeparatorChar;
 
             Console.WriteLine($"Executing Patcher { (args.Length > 0 ? $"with arguments:\n{{\n\t{string.Join(",\n\t", args)}\n}}" : "without arguments.") }");
-
-            string? debugfinderPath = null, exePath = null;
-            int index = 0;
+            
+            string? debugfinderPath = null;
+            string? exePath = null;
             bool spitOutHacknetOnly = false;
             bool skipLaunchers = false;
-            foreach (var arg in args)
-            {
-                if (arg.Equals("-debugfinderDir")) // the DeBugFinder.dll's directory
-                    debugfinderPath = args[index + 1] + Path.DirectorySeparatorChar;
-                if (arg.Equals("-exeDir")) // the Hacknet.exe's directory
-                    exePath = args[index + 1] + separator;
-                spitOutHacknetOnly |= arg.Equals("-spit"); // spit modifications without injected code
-                skipLaunchers |= arg.Equals("-nolaunch");
-                index++;
+            ArrayCursor<string> argsCursor = new ArrayCursor<string>(args);
+            try {
+                while(!argsCursor.AtEnd()) {
+                    string arg = argsCursor.GetCurrent()!;
+                    switch(arg) {
+                        /* the DeBugFinder.dll's directory */
+                        case "-debugfinderDir":
+                            argsCursor.MoveNext();
+                            if(argsCursor.AtEnd())
+                                throw new Exception($"Erroneous no-parameter '{arg}' option");
+                            debugfinderPath = argsCursor.GetCurrent() + separator;
+                            break;
+                        /* the Hacknet.exe's directory */
+                        case "-exeDir":
+                            argsCursor.MoveNext();
+                            if(argsCursor.AtEnd())
+                                throw new Exception($"Erroneous no-parameter '{arg}' option");
+                            exePath = argsCursor.GetCurrent() + separator;
+                            break;
+                        /* spit type access level modifications without injected code */
+                        case "-spit":
+                            spitOutHacknetOnly = true;
+                            break;
+                        /* don't mess with the shell scripts or MonoKickstart executable */
+                        case "-nolaunch":
+                            skipLaunchers = true;
+                            break;
+                    }
+                    argsCursor.MoveNext();
+                }
+            } catch(Exception e) {
+                Console.WriteLine("Error parsing your arguments: {0}", e);
+                return 125;
             }
 
             AssemblyDefinition gameAssembly;
