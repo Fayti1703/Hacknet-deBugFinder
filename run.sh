@@ -32,6 +32,9 @@ do_operation() {
 		"build")
 			"$builder" ../DeBugFinder/DeBugFinder.csproj /p:Configuration="$configuration";
 			;;
+		"patch-init")
+			"$exe_prefix" ./DeBugFinderPatcher.exe -exeDir "$hacknet_dir";
+			;;
 		"patch")
 			"$exe_prefix" ./DeBugFinderPatcher.exe -exeDir "$hacknet_dir" -nolaunch;
 			;;
