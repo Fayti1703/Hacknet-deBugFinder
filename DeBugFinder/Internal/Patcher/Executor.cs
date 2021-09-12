@@ -1,4 +1,5 @@
-﻿using System;
+#nullable enable
+using System;
 using System.Reflection;
 using DeBugFinder.Attribute;
 using DeBugFinder.Util;
@@ -16,18 +17,18 @@ namespace DeBugFinder.Internal.Patcher
 
             // Retrieve the hook methods
             Type hooks = typeof(DeBugFinderHooks);
-            PatchAttribute attrib = null;
+            PatchAttribute? attrib = null;
             try {
                 foreach(MethodInfo meth in hooks.GetMethods()) {
                     attrib = meth.GetFirstAttribute<PatchAttribute>();
                     if(attrib == null) continue;
-                    string signature = attrib.MethodSig;
+                    string? signature = attrib.MethodSig;
                     if(signature == null) {
                         Console.WriteLine($"Null method signature found, skipping {nameof(PatchAttribute)} on method.");
                         continue;
                     }
 
-                    MethodDefinition method = gameAssembly.MainModule.GetType(attrib.TypeName)?.GetMethod(attrib.MethodName);
+                    MethodDefinition? method = gameAssembly.MainModule.GetType(attrib.TypeName)?.GetMethod(attrib.MethodName);
                     if(method == null) {
                         Console.WriteLine(
                             $"Method signature '{signature}' could not be found, method hook patching failed, skipping {nameof(PatchAttribute)} on '{signature}'."

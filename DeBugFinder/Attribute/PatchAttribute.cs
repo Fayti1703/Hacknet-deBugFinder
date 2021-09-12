@@ -1,4 +1,6 @@
-﻿using System;
+﻿#nullable enable
+
+using System;
 using JetBrains.Annotations;
 
 namespace DeBugFinder.Attribute
@@ -23,13 +25,13 @@ namespace DeBugFinder.Attribute
             All_Ref = 0x5E
         }
 
-        public readonly string MethodSig;
+        public readonly string? MethodSig;
         public readonly int ILIndex;
         public readonly int Flags;
         public readonly bool After;
-        public readonly int[] LocalIds;
+        public readonly int[]? LocalIds;
 
-        public PatchAttribute(string sig, int ilIndex = 0, object tag = null, InjectFlags flags = 0, bool before = false, int[] localsID = null, string depSig = null)
+        public PatchAttribute(string? sig, int ilIndex = 0, object? tag = null, InjectFlags flags = 0, bool before = false, int[]? localsID = null)
         {
             this.MethodSig = sig;
             this.ILIndex = ilIndex;
@@ -38,7 +40,7 @@ namespace DeBugFinder.Attribute
             this.LocalIds = localsID;
         }
 
-        public string TypeName => MethodSig.Remove(MethodSig.LastIndexOf('.'));
-        public string MethodName => MethodSig.Substring(MethodSig.LastIndexOf('.') + 1);
+        public string TypeName => MethodSig!.Remove(MethodSig.LastIndexOf('.'));
+        public string MethodName => MethodSig!.Substring(MethodSig.LastIndexOf('.') + 1);
     }
 }
