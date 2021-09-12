@@ -5,8 +5,12 @@ using System;
 using System.IO;
 using System.Reflection;
 using System.Runtime.CompilerServices;
+using System.Security;
+using System.Security.Permissions;
+using System.Security.Policy;
 using System.Text;
 using Mono.Cecil;
+using Mono.Cecil.Inject;
 
 namespace DeBugFinderPatcher
 {
@@ -131,31 +135,75 @@ namespace DeBugFinderPatcher
                 gameAssembly.Write(debugfinderDir.GetFile("Hacknet-deBugFinder.exe").FullName);
                 return 0;
             }
-
+            
+            AppDomain? mainDllDomain = null;
+            DirectoryInfo? tempDir = null;
+            byte[] finalData;
             try {
+                tempDir = CreateTemporaryDirectory();
+                if(tempDir == null) throw new IOException("Failed to create temporary sandbox directory");
+
+                mainDllDomain = AppDomain.CreateDomain("Main Patcher Domain", null, new AppDomainSetup {
+                    DisallowCodeDownload = true,
+                    PrivateBinPath = "",
+                    ApplicationBase = tempDir.FullName,
+                    ApplicationTrust = new ApplicationTrust {
+                        DefaultGrantSet = new PolicyStatement(new PermissionSet(PermissionState.None)),
+                        IsApplicationTrustedToRun = true
+                    }
+                });
+
+                /* load main dll's dependencies */
+                mainDllDomain.LoadAssembly(Assembly.GetAssembly(typeof(AssemblyDefinition)));
+                mainDllDomain.LoadAssembly(Assembly.GetAssembly(typeof(InjectFlags)));
+                mainDllDomain.Load(File.ReadAllBytes(debugfinderDir.GetFile("DeBugFinder.dll").FullName));
+                mainDllDomain.Load(File.ReadAllBytes(exeDir.GetFile("FNA.dll").FullName));
+                mainDllDomain.LoadAssembly(Assembly.GetExecutingAssembly());
+
+                byte[] gameAssemblyData;
                 using(MemoryStream stream = new MemoryStream()) {
                     gameAssembly.Write(stream);
-                    Assembly.Load(stream.GetBuffer());
+                    gameAssemblyData = stream.ToArray();
                 }
-
-                Assembly mainDll = Assembly.LoadFrom(debugfinderDir.GetFile("DeBugFinder.dll").FullName);
-
-                MethodInfo? executorMethod = mainDll.GetType("DeBugFinder.Internal.Patcher.Executor")
-                    ?.GetMethod("Main", BindingFlags.Static | BindingFlags.NonPublic);
                 
-                if(executorMethod == null)
-                    throw new Exception("Could not find 'DeBugFinder.Internal.Patcher.Executor::Main'!");
-                
-                executorMethod.Invoke(null, new object[] { gameAssembly });
+                mainDllDomain.Load(gameAssemblyData);
 
+                CrossAppDomainCall crosser = (CrossAppDomainCall) mainDllDomain.CreateInstanceAndUnwrap(
+                    typeof(CrossAppDomainCall).Assembly.FullName,
+                    typeof(CrossAppDomainCall).FullName
+                );
+                finalData = crosser.Run(gameAssemblyData);
             } catch(Exception ex) {
                 HandleException("Failure during DeBugFinder.dll's Patch Execution:", ex);
                 return 1;
+            } finally {
+                if(mainDllDomain != null)
+                    AppDomain.Unload(mainDllDomain);
+                tempDir?.Delete();
             }
             
             Console.WriteLine("Writing " + exeDir.GetFile("Hacknet-deBugFinder.exe").FullName);
-            gameAssembly.Write(exeDir.GetFile("Hacknet-deBugFinder.exe").FullName);
+            using FileStream outputStream = exeDir.GetFile("Hacknet-deBugFinder.exe").OpenWrite();
+            outputStream.Write(finalData, 0, finalData.Length);
             return 0;
+        }
+
+        public static DirectoryInfo? CreateTemporaryDirectory() {
+            DirectoryInfo? tempDir = null;
+            for(int i = 0; i < 2000; i++) {
+                string file = Path.GetTempFileName();
+                File.Delete(file);
+
+                try {
+                    Directory.CreateDirectory(file);
+                } catch(IOException) {
+                    continue;
+                }
+
+                tempDir = new DirectoryInfo(file);
+                break;
+            }
+            return tempDir;
         }
 
         private static void HandleException(string message, Exception e)
@@ -166,4 +214,17 @@ namespace DeBugFinderPatcher
             Console.ReadLine();
         }
     }
+
+    internal class CrossAppDomainCall : MarshalByRefObject {
+        public byte[] Run(byte[] gameData) {
+
+            Assembly mainDll = Assembly.Load("DeBugFinder");
+            MethodInfo? executorMethod = mainDll.GetType("DeBugFinder.Internal.Patcher.Executor")
+                ?.GetMethod("Main", BindingFlags.Static | BindingFlags.NonPublic);
+            if(executorMethod == null)
+                throw new Exception("Could not find 'DeBugFinder.Internal.Patcher.Executor::Main'!");
+            return (byte[]) executorMethod.Invoke(null, new object[] { gameData });
+        }
+    }
+    
 }

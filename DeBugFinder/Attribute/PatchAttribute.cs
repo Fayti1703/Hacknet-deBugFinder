@@ -7,6 +7,7 @@ namespace DeBugFinder.Attribute
 {
     [MeansImplicitUse]
     [AttributeUsage(AttributeTargets.Method)]
+    [Serializable]
     public class PatchAttribute : System.Attribute
     {
         [Flags]

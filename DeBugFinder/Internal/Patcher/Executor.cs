@@ -1,5 +1,6 @@
 #nullable enable
 using System;
+using System.IO;
 using System.Reflection;
 using DeBugFinder.Attribute;
 using DeBugFinder.Util;
@@ -11,15 +12,25 @@ namespace DeBugFinder.Internal.Patcher
 {
     internal static class Executor
     {
-        [UsedImplicitly]
-        internal static void Main(AssemblyDefinition gameAssembly)
-        {
 
+        [UsedImplicitly]
+        internal static byte[] Main(byte[] gameAssemblyData) {
+            MemoryStream input = new MemoryStream(gameAssemblyData);
+            AssemblyDefinition gameAssembly = AssemblyDefinition.ReadAssembly(input);
+            pMain(gameAssembly);
+            using MemoryStream output = new MemoryStream();
+            gameAssembly.Write(output);
+            gameAssembly.Dispose();
+            input.Dispose();
+            return output.ToArray();
+        } 
+        
+        internal static void pMain(AssemblyDefinition gameAssembly) {
             // Retrieve the hook methods
             Type hooks = typeof(DeBugFinderHooks);
             PatchAttribute? attrib = null;
             try {
-                foreach(MethodInfo meth in hooks.GetMethods()) {
+                foreach(MethodInfo meth in hooks.GetMethods(BindingFlags.Static | BindingFlags.Public)) {
                     attrib = meth.GetFirstAttribute<PatchAttribute>();
                     if(attrib == null) continue;
                     string? signature = attrib.MethodSig;
@@ -46,26 +57,21 @@ namespace DeBugFinder.Internal.Patcher
             } catch(Exception except) {
                 if(attrib == null || except is PatchingException)
                     throw;
-                throw new PatchingException(attrib, except);
+                throw new PatchingException(attrib, except.Message);
+                // Mono.Cecil.Inject Exceptions aren't serializable :(
+                // throw new PatchingException(attrib, except);
             }
         }
 
         private static void TryInject(this MethodDefinition def, MethodDefinition toInject, PatchAttribute attrib)
         {
-            try
-            {
-                def.InjectWith(
-                    toInject,
-                    attrib.ILIndex,
-                    null,
-                    (InjectFlags)attrib.Flags,
-                    attrib.After ? InjectDirection.After : InjectDirection.Before,
-                    attrib.LocalIds);
-            }
-            catch (Exception ex)
-            {
-                throw new Exception($"Error applying patch for '{attrib.MethodSig}'", ex);
-            }
+            def.InjectWith(
+                toInject,
+                attrib.ILIndex,
+                null,
+                (InjectFlags)attrib.Flags,
+                attrib.After ? InjectDirection.After : InjectDirection.Before,
+                attrib.LocalIds);
         }
     }
 }

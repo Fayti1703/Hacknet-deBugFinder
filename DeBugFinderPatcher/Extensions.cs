@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Reflection;
 using System.Xml;
 using Mono.Cecil;
 
@@ -121,6 +122,13 @@ namespace DeBugFinderPatcher
         public static void Deconstruct<T1, T2>(this Tuple<T1, T2> tuple, out T1 Item1, out T2 Item2) {
             Item1 = tuple.Item1;
             Item2 = tuple.Item2;
+        }
+
+        public static void LoadAssembly(this AppDomain target, Assembly localAssembly) {
+            Uri uri2 = new Uri(localAssembly.CodeBase);
+            if(!uri2.IsFile)
+                throw new ArgumentException("Cannot grab local assembly from network path.", nameof(localAssembly));
+            target.Load(File.ReadAllBytes(uri2.LocalPath));
         }
     }
 }
