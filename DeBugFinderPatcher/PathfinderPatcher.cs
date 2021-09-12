@@ -1,7 +1,11 @@
+
+#nullable enable
+
 using System;
 using System.IO;
 using System.Reflection;
 using System.Runtime.CompilerServices;
+using System.Text;
 using Mono.Cecil;
 
 namespace DeBugFinderPatcher
@@ -20,102 +24,113 @@ namespace DeBugFinderPatcher
     {
         internal static int Main(string[] args)
         {
-            var separator = Path.DirectorySeparatorChar;
+            char separator = Path.DirectorySeparatorChar;
 
             Console.WriteLine($"Executing Patcher { (args.Length > 0 ? $"with arguments:\n{{\n\t{string.Join(",\n\t", args)}\n}}" : "without arguments.") }");
 
-            string pathfinderDir = null, exeDir = "";
-            var index = 0;
-            var spitOutHacknetOnly = false;
-            var skipLaunchers = false;
+            string? debugfinderPath = null, exePath = null;
+            int index = 0;
+            bool spitOutHacknetOnly = false;
+            bool skipLaunchers = false;
             foreach (var arg in args)
             {
                 if (arg.Equals("-debugfinderDir")) // the DeBugFinder.dll's directory
-                    pathfinderDir = args[index + 1] + Path.DirectorySeparatorChar;
+                    debugfinderPath = args[index + 1] + Path.DirectorySeparatorChar;
                 if (arg.Equals("-exeDir")) // the Hacknet.exe's directory
-                    exeDir = args[index + 1] + separator;
+                    exePath = args[index + 1] + separator;
                 spitOutHacknetOnly |= arg.Equals("-spit"); // spit modifications without injected code
                 skipLaunchers |= arg.Equals("-nolaunch");
                 index++;
             }
 
             AssemblyDefinition gameAssembly;
-            try
-            {
+            DirectoryInfo debugfinderDir = new DirectoryInfo(debugfinderPath ?? ".");
+            DirectoryInfo exeDir = new DirectoryInfo(exePath ?? ".");
+            try {
                 if(!skipLaunchers) {
-                   if (File.Exists(exeDir + "Hacknet"))
-                   {
-                        File.Copy(exeDir + "Hacknet", exeDir + "Hacknet-deBugFinder", true);
+                    FileInfo shellLauncher = exeDir.GetFile("Hacknet");
+                    if(shellLauncher.Exists) {
+                        string launcherContent;
+                        using(FileStream input = shellLauncher.OpenRead()) {
+                            using StreamReader reader = new StreamReader(input, Encoding.UTF8);
+                            launcherContent = reader.ReadToEnd();
+                        }
+                        
+                        launcherContent = launcherContent.Replace("Hacknet", "Hacknet-deBugFinder");
+                        
+                        using(FileStream output = exeDir.GetFile("Hacknet-deBugFilder").OpenWrite()) {
+                            using StreamWriter writer = new StreamWriter(output, Encoding.UTF8);
+                            writer.Write(launcherContent);
+                        }
+                    }
 
-                        string txt = File.ReadAllText(exeDir + "Hacknet");
-                        txt = txt.Replace("Hacknet", "Hacknet-deBugFinder");
-
-                       File.WriteAllText(exeDir + "Hacknet-deBugFinder", txt);
-                   }
-
-                   foreach (string n in new[]{
-                       exeDir + "Hacknet.bin.x86",
-                       exeDir + "Hacknet.bin.x86_64",
-                       exeDir + "Hacknet.bin.osx"
+                    foreach(string extension in new[] {
+                        "x86",
+                        "x86_64",
+                        "osx"
                     }) {
-                       if (File.Exists(n))
-                           File.Copy(n, exeDir + "Hacknet-deBugFinder.bin" + Path.GetExtension(n), true);
-                   }
+                        FileInfo kickstartExe = exeDir.GetFile($"Hacknet.bin.{extension}");
+                        if(kickstartExe.Exists)
+                            kickstartExe.CopyTo(exeDir.GetFile($"Hacknet-deBugFinder.bin.{extension}").FullName, true);
+                    }
                 }
-                // Loads Hacknet.exe's assembly
-                gameAssembly = LoadAssembly(exeDir + "Hacknet.exe");
-            }
-            catch (Exception ex)
-            {
+
+                // Load Hacknet.exe's assembly
+                gameAssembly = AssemblyDefinition.ReadAssembly(exeDir.GetFile("Hacknet.exe").FullName, new ReaderParameters(ReadingMode.Deferred));
+            } catch(Exception ex) {
                 HandleException("Failure at Assembly Loading:", ex);
                 return 2;
             }
 
             if (gameAssembly == null) throw new InvalidDataException("Hacknet Assembly could not be found");
+            gameAssembly.Name.Name = "Hacknet-deBugFinder";
 
             try
             {
-                // Adds DeBugFinder internal attribute hack
+                // Add DeBugFinder internal attribute hack
                 gameAssembly.AddAssemblyAttribute<InternalsVisibleToAttribute>("DeBugFinder");
-                // Removes internal visibility from types
+                // Remove internal visibility from types
                 gameAssembly.RemoveInternals();
 
                 // Run Patcher Tasks
-                foreach(TypeTaskItem task in TaskReader.readTaskListFile(new FileInfo(pathfinderDir + "PatcherCommands.xml").FullName))
-                {
+                foreach(TypeTaskItem task in TaskReader.readTaskListFile(debugfinderDir.GetFile("PatcherCommands.xml").FullName)) 
                     task.execute(gameAssembly.MainModule);
-                }
-
             }
             catch (Exception ex)
             {
                 HandleException("Failure during Hacknet DeBugFinder Assembly Tweaks:", ex);
-                gameAssembly.Write("Hacknet-deBugFinder.exe");
+                gameAssembly.Write(exeDir.GetFile("Hacknet-deBugFinder.exe").FullName);
                 return 3;
             }
-            if(!spitOutHacknetOnly) {
-                try
-                {
-                    using (var stream = new MemoryStream())
-                    {
-                        gameAssembly.Write(stream);
-                        Assembly.Load(stream.GetBuffer());
-                        var assm = Assembly.LoadFrom(
-                            new FileInfo(string.IsNullOrEmpty(pathfinderDir) ? "DeBugFinder.dll" : pathfinderDir + "DeBugFinder.dll").FullName);
-                        var t = assm.GetType("DeBugFinder.Internal.Patcher.Executor");
-                        t.GetMethod("Main", BindingFlags.Static | BindingFlags.NonPublic)
-                            .Invoke(null, new object[] { gameAssembly });
-                    }
-                }
-                catch(Exception ex)
-                {
-                    HandleException("Failure during DeBugFinder.dll's Patch Execution:", ex);
-                    gameAssembly.Write("HacknetPathfinder.exe");
-                    return 1;
-                }
+
+            if(spitOutHacknetOnly) {
+                gameAssembly.Write(debugfinderDir.GetFile("Hacknet-deBugFinder.exe").FullName);
+                return 0;
             }
 
-            gameAssembly.Write("Hacknet-deBugFinder.exe");
+            try {
+                using(MemoryStream stream = new MemoryStream()) {
+                    gameAssembly.Write(stream);
+                    Assembly.Load(stream.GetBuffer());
+                }
+
+                Assembly mainDll = Assembly.LoadFrom(debugfinderDir.GetFile("DeBugFinder.dll").FullName);
+
+                MethodInfo? executorMethod = mainDll.GetType("DeBugFinder.Internal.Patcher.Executor")
+                    ?.GetMethod("Main", BindingFlags.Static | BindingFlags.NonPublic);
+                
+                if(executorMethod == null)
+                    throw new Exception("Could not find 'DeBugFinder.Internal.Patcher.Executor::Main'!");
+                
+                executorMethod.Invoke(null, new object[] { gameAssembly });
+
+            } catch(Exception ex) {
+                HandleException("Failure during DeBugFinder.dll's Patch Execution:", ex);
+                return 1;
+            }
+            
+            Console.WriteLine("Writing " + exeDir.GetFile("Hacknet-deBugFinder.exe").FullName);
+            gameAssembly.Write(exeDir.GetFile("Hacknet-deBugFinder.exe").FullName);
             return 0;
         }
 
@@ -125,35 +140,6 @@ namespace DeBugFinderPatcher
             Console.WriteLine(e);
             Console.WriteLine("Press any enter to terminate...");
             Console.ReadLine();
-        }
-
-        private static AssemblyDefinition LoadAssembly(string fileName, ReaderParameters parameters = null)
-        {
-            parameters = parameters ?? new ReaderParameters(ReadingMode.Deferred);
-            if (string.IsNullOrEmpty(fileName))
-                throw new ArgumentException($"{nameof(fileName)} is null/empty");
-            Stream stream = new FileStream(fileName, FileMode.Open, parameters.ReadWrite ? FileAccess.ReadWrite : FileAccess.Read, FileShare.Read);
-            if (parameters.InMemory)
-            {
-                var memoryStream = new MemoryStream(stream.CanSeek ? ((int)stream.Length) : 0);
-                using (stream)
-                {
-                    stream.CopyTo(memoryStream);
-                }
-                memoryStream.Position = 0L;
-                stream = memoryStream;
-            }
-            ModuleDefinition result;
-            try
-            {
-                result = ModuleDefinition.ReadModule(stream, parameters);
-            }
-            catch (Exception)
-            {
-                stream.Dispose();
-                throw;
-            }
-            return result.Assembly;
         }
     }
 }

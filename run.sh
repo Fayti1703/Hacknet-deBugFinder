@@ -30,13 +30,13 @@ do_operation() {
 			"$exe_prefix" ./DeBugFinderPatcher.exe -exeDir "$hacknet_dir" -spit;
 			;;
 		"build")
-			"$builder" ../DeBugFinder.csproj /p:Configuration="$configuration";
+			"$builder" ../DeBugFinder/DeBugFinder.csproj /p:Configuration="$configuration";
 			;;
 		"patch")
 			"$exe_prefix" ./DeBugFinderPatcher.exe -exeDir "$hacknet_dir" -nolaunch;
 			;;
 		"copy")
-			cp -v Hacknet-deBugFinder.exe DeBugFinder.dll "$hacknet_dir";
+			cp -v DeBugFinder.dll "$hacknet_dir";
 			;;
 		*)
 			printf "Unknown operation: %s\n" "$1" >&2
