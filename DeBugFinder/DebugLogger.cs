@@ -22,7 +22,7 @@ namespace DeBugFinder {
 			if (!enabledTags.Contains(tag)) return;
 			string output = $"[{tag}] {what}";
 			Console.WriteLine(output);
-			os.write(output);
+			os?.write(output);
 		}
 
 		public static void Log(DebugTag tag, Func<string> producer) {
