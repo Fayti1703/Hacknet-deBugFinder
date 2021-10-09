@@ -409,6 +409,43 @@ namespace DeBugFinder {
 
 		#region Game Integration
 
+		[Patch(typeof(Program), "Main",
+			ilIndex: 9,
+			flags: InjectFlags.PassParametersVal,
+			localIDs: new[] {0, 1}
+		)]
+		internal static void onHacknetLaunch(string[] argv, ref int index, string val) {
+			if(val != "-detags") return;
+			if(index == argv.Length - 1) {
+				Console.WriteLine("Ignored erroneous no-arg 'detags' option.");
+				return;
+			}
+
+			string opt = argv[++index];
+			IEnumerable<string> options = opt.Split(',').Select(x => x.Trim());
+			foreach(string option in options) {
+				string optName = option;
+				bool toSet = true;
+				if(option.StartsWith("-")) {
+					toSet = false;
+					optName = option.Substring(1);
+				} else if(option.StartsWith("+"))
+					optName = option.Substring(1);
+
+				string errMsg = DebugLogger.TryParseTag(optName, out DebugTag tag, out _);
+				if(errMsg != null) {
+					Console.WriteLine(errMsg);
+					continue;
+				}
+
+				if(toSet)
+					DebugLogger.enabledTags.Add(tag);
+				else
+					DebugLogger.enabledTags.Remove(tag);
+			}
+		}
+
+
 		[Patch(typeof(ProgramRunner), "ExecuteProgram",
 			ilIndex: 13,
 			flags: InjectFlags.PassParametersVal | InjectFlags.ModifyReturn,

@@ -7,8 +7,8 @@ using static DeBugFinder.DebugTag;
 
 namespace DeBugFinder {
 	public static class DebugLogger {
-		[NotNull]
-		private static readonly HashSet<DebugTag> enabledTags = new HashSet<DebugTag> {
+
+		public static readonly HashSet<DebugTag> enabledTags = new HashSet<DebugTag> {
 			HacknetError
 		};
 
@@ -81,6 +81,17 @@ namespace DeBugFinder {
 				GroupBy(e => e.i / partitionSize, e => e.x); // group by index
 		}
 
+		[CanBeNull]
+		public static string TryParseTag(string input, out DebugTag output, out string trueName) {
+			trueName = normalizeTagName(input);
+			if(Enum.TryParse(trueName, ignoreCase: true, out output))
+				return null;
+			string msg = $"The tag {trueName} was not found.";
+			if(trueName != input)
+				msg += $" (Normalized from your input of '{input}')";
+			return msg;
+		}
+
 		public static void HacknetInterface(string[] args) {
 			switch (args.Length) {
 				case 0: {
@@ -104,14 +115,9 @@ namespace DeBugFinder {
 					os.write("Usage: `detags [<tag> <on/off/get>]` or `detags list`");
 					break;
 				default:
-					string tagName = normalizeTagName(args[0]);
-					if (!Enum.TryParse(tagName, ignoreCase: true, out DebugTag target)) {
-						string msg = $"The tag {tagName} was not found.";
-						if (tagName != args[0]) {
-							msg += $" (Normalized from your input of '{args[0]}')";
-						}
-
-						os.write(msg);
+					string errMsg = TryParseTag(args[0], out DebugTag target, out string tagName);
+					if(errMsg != null) {
+						os.write(errMsg);
 						return;
 					}
 
