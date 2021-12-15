@@ -15,14 +15,12 @@ namespace DeBugFinder.Internal.Patcher {
 			info.AddValue("CausedByAttribute", this.CausedBy, typeof(PatchAttribute));
 		}
 
-		public PatchAttribute CausedBy {
-			get;
-		}
-		
+		public readonly PatchAttribute CausedBy;
+
 		public PatchingException(PatchAttribute patch, Exception inner) : base(formatPatch(patch), inner) {
 			this.CausedBy = patch;
 		}
-		
+
 		public PatchingException(PatchAttribute patch, string message, Exception inner) : base(formatPatch(patch, message), inner) {
 			this.CausedBy = patch;
 		}
@@ -33,8 +31,8 @@ namespace DeBugFinder.Internal.Patcher {
 
 		private static string formatPatch(PatchAttribute patch, string message = null) {
 			string text = $"Error patching '{patch.MethodSig}'";
-			
-			if(message != null) 
+
+			if(message != null)
 				text += ":\n" + message;
 
 			return text;
