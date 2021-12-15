@@ -14,7 +14,15 @@ namespace DeBugFinder {
 			{ "dumpfact", DumpFactions },
 			{ "hublockdump", HubLockDump },
 			{ "launchopt", ModifyLaunchOptions },
-			{ "nodeoffset",  NearbyNodeOffsetViewer.HacknetInterface }
+			{ "nodeoffset",  NearbyNodeOffsetViewer.HacknetInterface },
+			{ "shutdown", _ => {
+				OS.currentInstance.quitGame(null, null);
+			} },
+			{ "vmexit", _ => {
+				MusicManager.stop();
+				Game1.threadsExiting = true;
+				Game1.getSingleton().Exit();
+			} }
 		};
 
 		private static void ModifyLaunchOptions(string[] args) {
