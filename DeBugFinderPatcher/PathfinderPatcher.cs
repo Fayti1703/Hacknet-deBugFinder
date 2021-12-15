@@ -130,6 +130,7 @@ namespace DeBugFinderPatcher
             }
 
             if(spitOutHacknetOnly) {
+                Console.WriteLine("Spit -- writing " + debugfinderDir.GetFile("Hacknet-deBugFinder.exe").FullName);
                 gameAssembly.Write(debugfinderDir.GetFile("Hacknet-deBugFinder.exe").FullName);
                 return 0;
             }
