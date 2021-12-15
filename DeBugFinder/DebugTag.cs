@@ -88,6 +88,12 @@ namespace DeBugFinder {
 		 * Node loads.
 		 * <see cref="Hacknet.ComputerLoader.loadComputer" />
 		 */
-		NodeLoad
+		NodeLoad,
+		/**
+		 * Flag adds and removes.
+		 * <see cref="Hacknet.ProgressionFlags.AddFlag"/>
+		 * <see cref="Hacknet.ProgressionFlags.RemoveFlag"/>
+		 */
+		Flags
 	}
 }

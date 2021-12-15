@@ -413,6 +413,16 @@ namespace DeBugFinder {
 			DebugLogger.Log(NodeLoad, $"Loading computer '{filename}'");
 		}
 
+		[Patch(typeof(ProgressionFlags), "AddFlag", flags: InjectFlags.PassParametersVal)]
+		internal static void onDebugHook_PF_addFlags(string flag) {
+			DebugLogger.Log(Flags, $"Adding flag '{flag}'");
+		}
+
+		[Patch(typeof(ProgressionFlags), "RemoveFlag", flags: InjectFlags.PassParametersVal)]
+		internal static void onDebugHook_PF_removeFlags(string flag) {
+			DebugLogger.Log(Flags, $"Removing flag '{flag}'");
+		}
+
 		#region Game Integration
 
 		[Patch(typeof(Program), "Main",
