@@ -10,6 +10,7 @@ using Hacknet;
 using Hacknet.Effects;
 using Hacknet.Factions;
 using Hacknet.Gui;
+using Hacknet.Misc;
 using Hacknet.Mission;
 using Microsoft.Xna.Framework;
 using static DeBugFinder.Attribute.PatchAttribute;
@@ -23,32 +24,32 @@ namespace DeBugFinder {
 	/// </summary>
 	/// Place all functions to be hooked into Hacknet here
 	public static class DeBugFinderHooks {
-		public const string TitleScreenTag = "deBugFinder v0.1";
+		public const string TitleScreenTag = "deBugFinder v0.5";
 
-		[Patch("Hacknet.Utils.AppendToErrorFile", flags: InjectFlags.PassParametersVal)]
+		[Patch(typeof(Utils), "AppendToErrorFile", flags: InjectFlags.PassParametersVal)]
 		public static void onDebugHook_appendToErrorFile(string text) {
 			DebugLogger.Log(HacknetError, text);
 		}
 
-		[Patch("Hacknet.OS.Draw", 320, flags: InjectFlags.PassLocals, localsID: new[] {1})]
+		[Patch(typeof(OS), "Draw", ilIndex: 320, flags: InjectFlags.PassLocals, localIDs: new[] { 1 })]
 		public static void onDebugHook_osDrawCatch(ref Exception ex) {
 			DebugLogger.Log(HacknetError, Utils.GenerateReportFromException(ex));
 		}
 
-		[Patch("Hacknet.OS.Update", 800, flags: InjectFlags.PassLocals, localsID: new[] {4})]
+		[Patch(typeof(OS), "Update", ilIndex: 800, flags: InjectFlags.PassLocals, localIDs: new[] { 4 })]
 		public static void onDebugHook_osUpdateCatch(ref Exception ex) {
 			DebugLogger.Log(HacknetError, Utils.GenerateReportFromException(ex));
 		}
 
-		[Patch("Hacknet.MissionFunctions.runCommand", flags: InjectFlags.PassParametersVal)]
+		[Patch(typeof(MissionFunctions), "runCommand", flags: InjectFlags.PassParametersVal)]
 		public static void onDebugHook_runFunction(int value, string name) {
 			DebugLogger.Log(MissionFunction, $"Running Mission function '{name}' with val {value}");
 		}
 
-		[Patch("Hacknet.ComputerLoader.readMission",
-			-4,
+		[Patch(typeof(ComputerLoader), "readMission",
+			ilIndex: -4,
 			flags: InjectFlags.PassLocals,
-			localsID: new[] {2}
+			localIDs: new[] {2}
 		)]
 		public static void onDebugHook_MissionRead(ref ActiveMission mission) {
 			DebugLogger.Log(MissionLoad, $"Loaded Mission '{mission.reloadGoalsSourceFile}'.");
@@ -60,7 +61,7 @@ namespace DeBugFinder {
 			);
 		}
 
-		[Patch("Hacknet.ActiveMission.isComplete",
+		[Patch(typeof(ActiveMission), "isComplete",
 			flags: InjectFlags.PassInvokingInstance | InjectFlags.PassParametersVal |
 			InjectFlags.ModifyReturn
 		)]
@@ -75,7 +76,7 @@ namespace DeBugFinder {
 			return true;
 		}
 
-		[Patch("Hacknet.MailServer.attemptCompleteMission",
+		[Patch(typeof(MailServer), "attemptCompleteMission",
 			flags: InjectFlags.PassInvokingInstance | InjectFlags.PassParametersVal
 		)]
 		public static void onDebugHook_MS_attemptCompleteMission(MailServer self, ActiveMission mission) {
@@ -85,7 +86,7 @@ namespace DeBugFinder {
 			DebugLogger.Log(SenderVerify, "Mission says: " + mission.email.sender);
 		}
 
-		[Patch("Hacknet.SCHasFlags.Check",
+		[Patch(typeof(SCHasFlags), "Check",
 			flags: InjectFlags.ModifyReturn | InjectFlags.PassInvokingInstance | InjectFlags.PassParametersVal
 		)]
 		public static bool onDebugHookSCHF_Check(SCHasFlags self, out bool retVal, object os_obj) {
@@ -109,13 +110,13 @@ namespace DeBugFinder {
 			return true;
 		}
 
-		[Patch("Hacknet.RunnableConditionalActions.LoadIntoOS", flags: InjectFlags.PassParametersVal)]
+		[Patch(typeof(RunnableConditionalActions), "LoadIntoOS", flags: InjectFlags.PassParametersVal)]
 		public static void onDebugHookRCA_LoadIntoOS(string filepath, object OSobj) {
 			string truePath = LocalizedFileLoader.GetLocalizedFilepath(Utils.GetFileLoadPrefix() + filepath);
 			DebugLogger.Log(ActionLoad, $"Loading Conditional Actions File {truePath.formatForLog()} into OS.");
 		}
 
-		[Patch("Hacknet.SerializableConditionalActionSet.Deserialize",
+		[Patch(typeof(SerializableConditionalActionSet), "Deserialize",
 			flags: InjectFlags.PassParametersRef | InjectFlags.ModifyReturn
 		)]
 		public static bool onDebugHook_SCAS_Deserialize(
@@ -170,7 +171,7 @@ namespace DeBugFinder {
 			return true;
 		}
 
-		[Patch("Hacknet.SerializableAction.Deserialize", flags: InjectFlags.PassParametersRef)]
+		[Patch(typeof(SerializableAction), "Deserialize", flags: InjectFlags.PassParametersRef)]
 		public static void onDebugHook_SA_Deserialize(ref XmlReader rdr) {
 			var acceptables = new HashSet<string> {
 				"LoadMission",
@@ -221,48 +222,48 @@ namespace DeBugFinder {
 			}
 		}
 
-		[Patch("Hacknet.DelayableActionSystem.Update", flags: InjectFlags.ModifyReturn)]
+		[Patch(typeof(DelayableActionSystem), "Update", flags: InjectFlags.ModifyReturn)]
 		public static bool onDebugHook_DAS_Update() {
 			return DebugLogger.isEnabled(DisableDelayProcessing);
 		}
 
-		[Patch("Hacknet.FastDelayableActionSystem.Update", flags: InjectFlags.ModifyReturn)]
+		[Patch(typeof(FastDelayableActionSystem), "Update", flags: InjectFlags.ModifyReturn)]
 		public static bool onDebugHook_FDAS_Update() {
 			return DebugLogger.isEnabled(DisableDelayProcessing);
 		}
 
-		[Patch("Hacknet.Misc.ExtensionTests.TestExtensionForRuntime",
-			-1,
+		[Patch(typeof(ExtensionTests), "TestExtensionForRuntime",
+			ilIndex: -1,
 			flags: InjectFlags.PassLocals,
-			localsID: new[] {1}
+			localIDs: new[] {1}
 		)]
 		public static void onDebugHook_testComplete(ref string retVal) {
 			DebugLogger.Log(WriteReport, retVal);
 		}
 
-		[Patch("Hacknet.OS.saveGame")]
+		[Patch(typeof(OS), "saveGame")]
 		public static void onDebugHook_saveBeginThread() {
 			DebugLogger.Log(SaveTrace, () => "Save thread triggered \n" + new StackTrace(3));
 		}
 
-		[Patch("Hacknet.OS.threadedSaveExecute")]
+		[Patch(typeof(OS), "threadedSaveExecute")]
 		public static void onDebugHook_saveFromThread() {
 			DebugLogger.Log(SaveTrace,
 				() => "Threaded save execution triggered \n" + new StackTrace(3)
 			);
 		}
 
-		[Patch("Hacknet.Computer.crash", flags: InjectFlags.PassInvokingInstance)]
+		[Patch(typeof(Computer), "crash", flags: InjectFlags.PassInvokingInstance)]
 		public static void onDebugHook_Comp_Crash(Computer self) {
 			DebugLogger.Log(ComputerCrash, () => $"'{self.idName}' crashed.");
 		}
 
-		[Patch("Hacknet.Computer.bootupTick", -2, flags: InjectFlags.PassInvokingInstance)]
+		[Patch(typeof(Computer), "bootupTick", ilIndex: -2, flags: InjectFlags.PassInvokingInstance)]
 		public static void onDebugHook_Comp_BootupTick(Computer self) {
 			DebugLogger.Log(ComputerCrash, () => $"'{self.idName}' rebooted.");
 		}
 
-		[Patch("Hacknet.Computer.forkBombClients", flags: InjectFlags.PassInvokingInstance)]
+		[Patch(typeof(Computer), "forkBombClients", flags: InjectFlags.PassInvokingInstance)]
 		public static void onDebugHook_Comp_fbClients(Computer self) {
 			DebugLogger.Log(ComputerCrash,
 				() => self.os.ActiveHackers.Where(hacker => hacker.Value == self.ip)
@@ -273,14 +274,14 @@ namespace DeBugFinder {
 			);
 		}
 
-		[Patch("Hacknet.HackerScriptExecuter.executeThreadedScript", 40, flags: InjectFlags.PassLocals, localsID: new[] { 3 })]
+		[Patch(typeof(HackerScriptExecuter), "executeThreadedScript", ilIndex: 40, flags: InjectFlags.PassLocals, localIDs: new[] { 3 })]
 		public static void onDebugHook_HSE_CrashCheck(ref Computer _source) {
 			Computer source = _source;
 			DebugLogger.Log(ComputerCrash, () => "HackerScript from '" + source.idName + "' shutting down because host computer crashed.");
 		}
 
 		
-		[Patch("Hacknet.ComputerLoader.readMission", flags: InjectFlags.PassParametersVal)]
+		[Patch(typeof(ComputerLoader), "readMission", flags: InjectFlags.PassParametersVal)]
 		public static void onDebugHook_MissionReadTrace(string filename) {
 			DebugLogger.Log(MissionLoadTrace, () => 
 				$"Mission Load '{filename}' Triggered:\n" + new StackTrace(3)
@@ -288,7 +289,7 @@ namespace DeBugFinder {
 		}
 
 		[Patch(
-			"Hacknet.Computer.GetCodePortNumberFromDisplayPort", 
+			typeof(Computer), "GetCodePortNumberFromDisplayPort",
 			flags: InjectFlags.ModifyReturn | InjectFlags.PassParametersVal | InjectFlags.PassInvokingInstance
 		)]
 		public static bool onDebugHook_CPNFromDP(Computer self, out int _codePort, int displayPort) {	
@@ -317,10 +318,10 @@ namespace DeBugFinder {
 		}
 
 		[Patch(
-			"Hacknet.RunnableConditionalActions.Update",
-			39,
+			typeof(RunnableConditionalActions), "Update",
+			ilIndex: 39,
 			flags: InjectFlags.PassLocals,
-			localsID: new[] { 1, 2 }
+			localIDs: new[] { 1, 2 }
 		)]
 		public static void onDebugHook_RCA_Update(ref SerializableConditionalActionSet setToTrigger, ref int actionIndex) {
 			SerializableAction actionToTrigger = setToTrigger.Actions[actionIndex];
@@ -328,20 +329,20 @@ namespace DeBugFinder {
 		}
 
 		[Patch(
-			"Hacknet.FastDelayableActionSystem.Update",
-			37,
+			typeof(FastDelayableActionSystem), "Update",
+			ilIndex: 37,
 			flags: InjectFlags.PassLocals,
-			localsID: new[] { 2 }
+			localIDs: new[] { 2 }
 		)]
 		public static void onDebugHook_FDAS_Update(ref SerializableAction actionToTrigger) {
 			DebugLogger.Log(ActionExec, $"Triggering '{actionToTrigger.GetType().Name}' Action from FastDelayHost.");
 		}
 		
 		[Patch(
-			"Hacknet.DelayableActionSystem.Update",
-			47,
+			typeof(DelayableActionSystem), "Update",
+			ilIndex: 47,
 			flags: InjectFlags.PassLocals,
-			localsID: new[] { 4 }
+			localIDs: new[] { 4 }
 		)]
 		public static void onDebugHook_DAS_Update(ref string encryptedData) {
 			if(!DebugLogger.isEnabled(ActionExec)) return; /* optimize */
@@ -354,10 +355,10 @@ namespace DeBugFinder {
 		}
 
 		[Patch(
-			"Hacknet.Factions.CustomFactionAction.Trigger",
-			4,
+			typeof(CustomFactionAction), "Trigger",
+			ilIndex: 4,
 			flags: InjectFlags.PassInvokingInstance | InjectFlags.PassLocals,
-			localsID: new[] { 0 }
+			localIDs: new[] { 0 }
 		)]
 		public static void onDebugHook_CFA_Trigger(CustomFactionAction self, ref int actionIndex) {
 			SerializableAction actionToTrigger = self.TriggerActions[actionIndex];
@@ -365,7 +366,7 @@ namespace DeBugFinder {
 		}
 		
 		[Patch(
-			"Hacknet.DelayableActionSystem.AddAction",
+			typeof(DelayableActionSystem), "AddAction",
 			flags: InjectFlags.PassParametersVal
 		)]
 		public static void onDebugHook_DAS_AddAction(SerializableAction action, float delay) {
@@ -373,7 +374,7 @@ namespace DeBugFinder {
 		}
 
 		[Patch(
-			"Hacknet.FastDelayableActionSystem.AddAction",
+			typeof(FastDelayableActionSystem), "AddAction",
 			flags: InjectFlags.PassParametersVal
 		)]
 		public static void onDebugHook_FDAS_AddAction(SerializableAction action, float delay) {
@@ -381,10 +382,10 @@ namespace DeBugFinder {
 		}
 
 		[Patch(
-			"Hacknet.SADeleteFile.Trigger",
-			17,
+			typeof(SADeleteFile), "Trigger",
+			ilIndex: 17,
 			flags: InjectFlags.PassInvokingInstance | InjectFlags.ModifyReturn | InjectFlags.PassLocals,
-			localsID: new[] { 0, 1 }
+			localIDs: new[] { 0, 1 }
 		)]
 		public static bool onDebugHook_SADF_Trigger(SADeleteFile self, ref OS os, ref Computer targetComputer) {
 			try {
@@ -413,10 +414,10 @@ namespace DeBugFinder {
 
 		#region Game Integration
 
-		[Patch("Hacknet.ProgramRunner.ExecuteProgram",
-			13,
+		[Patch(typeof(ProgramRunner), "ExecuteProgram",
+			ilIndex: 13,
 			flags: InjectFlags.PassParametersVal | InjectFlags.ModifyReturn | InjectFlags.PassLocals,
-			localsID: new[] {1}
+			localIDs: new[] {1}
 		)]
 		public static bool onRunProgram(
 			ref bool disconnects, ref bool returnFlag, object osObj, string[] args
@@ -427,20 +428,20 @@ namespace DeBugFinder {
 			return true;
 		}
 
-		[Patch("Hacknet.OS.quitGame")]
+		[Patch(typeof(OS), "quitGame")]
 		public static void onQuitGame() {
 			NearbyNodeOffsetViewer.onSessionStop();
 		}
 
-		[Patch("Hacknet.OS.Update", flags: InjectFlags.PassParametersVal)]
+		[Patch(typeof(OS), "Update", flags: InjectFlags.PassParametersVal)]
 		public static void onUpdateGame(GameTime deltaT, bool unfocused, bool covered) {
 			NearbyNodeOffsetViewer.onUpdate(deltaT);
 		}
 
-		[Patch("Hacknet.MainMenu.DrawBackgroundAndTitle",
-			7,
+		[Patch(typeof(MainMenu), "DrawBackgroundAndTitle",
+			ilIndex: 7,
 			flags: InjectFlags.PassInvokingInstance | InjectFlags.ModifyReturn | InjectFlags.PassLocals,
-			localsID: new[] {0}
+			localIDs: new[] {0}
 		)]
 		public static bool onDrawMainMenuTitles(MainMenu self, out bool result, ref Rectangle dest) {
 			result = true;

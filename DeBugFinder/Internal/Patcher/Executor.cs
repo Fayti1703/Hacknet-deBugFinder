@@ -1,6 +1,7 @@
 #nullable enable
 using System;
 using System.IO;
+using System.Linq;
 using System.Reflection;
 using DeBugFinder.Attribute;
 using DeBugFinder.Util;
@@ -30,21 +31,23 @@ namespace DeBugFinder.Internal.Patcher {
 				foreach(MethodInfo meth in hooks.GetMethods(BindingFlags.Static | BindingFlags.Public)) {
 					attrib = meth.GetFirstAttribute<PatchAttribute>();
 					if(attrib == null) continue;
-					string? signature = attrib.MethodSig;
-					if(signature == null) {
-						Console.WriteLine($"Null method signature found, skipping {nameof(PatchAttribute)} on method.");
+
+					TypeDefinition targetType = gameAssembly.MainModule.GetType(attrib.TargetType.FullName);
+					MethodDefinition? target = targetType.Methods.FirstOrDefault(candidate => {
+						if(candidate.Name != attrib.MethodName) return false;
+						if(attrib.MethodArgs == null) return true;
+						if(candidate.Parameters.Count != attrib.MethodArgs.Length)
+							return false;
+						return !candidate.Parameters.Where((param, i) =>
+							param.ParameterType.Resolve() != candidate.Module.ImportReference(attrib.MethodArgs[i])
+						).Any();
+					});
+					if(target == null) {
+						Console.WriteLine($"Cannot find appropriate method to hook '{meth.Name}' into.");
 						continue;
 					}
 
-					MethodDefinition? method = gameAssembly.MainModule.GetType(attrib.TypeName)?.GetMethod(attrib.MethodName);
-					if(method == null) {
-						Console.WriteLine(
-							$"Method signature '{signature}' could not be found, method hook patching failed, skipping {nameof(PatchAttribute)} on '{signature}'."
-						);
-						continue;
-					}
-
-					method.TryInject(
+					target.TryInject(
 						gameAssembly.MainModule.ImportReference(meth).Resolve(),
 						attrib
 					);
@@ -64,8 +67,9 @@ namespace DeBugFinder.Internal.Patcher {
 				attrib.ILIndex,
 				null,
 				(InjectFlags) attrib.Flags,
-				attrib.After ? InjectDirection.After : InjectDirection.Before,
-				attrib.LocalIds);
+				attrib.AfterInstruction ? InjectDirection.After : InjectDirection.Before,
+				attrib.LocalIDs
+			);
 		}
 	}
 }

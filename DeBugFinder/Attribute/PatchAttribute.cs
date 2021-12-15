@@ -1,6 +1,7 @@
 ﻿#nullable enable
 
 using System;
+using System.Linq;
 using JetBrains.Annotations;
 
 namespace DeBugFinder.Attribute {
@@ -23,21 +24,35 @@ namespace DeBugFinder.Attribute {
 			All_Ref = 0x5E
 		}
 
-		public readonly string? MethodSig;
+		public readonly Type TargetType;
+		public readonly string MethodName;
+		public readonly Type[]? MethodArgs;
 		public readonly int ILIndex;
+		public readonly bool AfterInstruction;
 		public readonly int Flags;
-		public readonly bool After;
-		public readonly int[]? LocalIds;
+		public readonly int[]? LocalIDs;
 
-		public PatchAttribute(string? sig, int ilIndex = 0, object? tag = null, InjectFlags flags = 0, bool before = false, int[]? localsID = null) {
-			this.MethodSig = sig;
+		public PatchAttribute(
+			Type targetType, string methodName, Type[]? methodArgs = null,
+			int ilIndex = 0, bool afterInstruction = false,
+			InjectFlags flags = 0, int[]? localIDs = null
+		) {
+			this.TargetType = targetType;
+			this.MethodName = methodName;
+			this.MethodArgs = methodArgs;
 			this.ILIndex = ilIndex;
-			this.Flags = (int) flags;
-			this.After = before;
-			this.LocalIds = localsID;
+			this.AfterInstruction = afterInstruction;
+			this.Flags = (int)flags;
+			this.LocalIDs = localIDs;
 		}
 
-		public string TypeName => MethodSig!.Remove(MethodSig.LastIndexOf('.'));
-		public string MethodName => MethodSig!.Substring(MethodSig.LastIndexOf('.') + 1);
+		public string MethodSig {
+			get {
+				string output = $"{this.TargetType.FullName}::{this.MethodName}";
+				if(this.MethodArgs != null)
+					output += "(" + string.Join(", ", this.MethodArgs.Select(x => x.FullName)) + ")";
+				return output;
+			}
+		}
 	}
 }
