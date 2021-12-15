@@ -13,6 +13,10 @@ namespace DeBugFinder {
 		 */
 		MissionLoad,
 		/**
+		 * Failed mission goals <see cref="Hacknet.ActiveMission.isComplete"/>
+		 */
+		MissionGoal,
+		/**
 		 * Mission completion <see cref="Hacknet.ActiveMission.isComplete"/>
 		 */
 		MissionComplete,

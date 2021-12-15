@@ -67,11 +67,12 @@ namespace DeBugFinder {
 		internal static bool onDebugHook_AM_isComplete(ActiveMission self, out bool ret, List<string> additionalDetails) {
 			ret = true;
 			foreach(MisisonGoal goal in self.goals.Where(goal => !goal.isComplete(additionalDetails))) {
-				DebugLogger.Log(MissionComplete, $"A {goal.GetType().Name} goal prevented mission completion.");
+				DebugLogger.Log(MissionGoal, $"A {goal.GetType().Name} goal prevented mission completion of '{self.reloadGoalsSourceFile}'");
 				ret = false;
 				break;
 			}
-
+			if(ret)
+				DebugLogger.Log(MissionComplete, $"Mission completed: '{self.reloadGoalsSourceFile}'");
 			return true;
 		}
 
