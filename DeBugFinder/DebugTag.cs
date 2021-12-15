@@ -83,6 +83,11 @@ namespace DeBugFinder {
 		 * DeleteFile action.
 		 * <see cref="Hacknet.SADeleteFile.Trigger" />
 		 */
-		DeleteFile
+		DeleteFile,
+		/**
+		 * Node loads.
+		 * <see cref="Hacknet.ComputerLoader.loadComputer" />
+		 */
+		NodeLoad
 	}
 }

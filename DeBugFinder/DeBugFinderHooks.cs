@@ -408,6 +408,11 @@ namespace DeBugFinder {
 			return true;
 		}
 
+		[Patch(typeof(ComputerLoader), "loadComputer", flags: InjectFlags.PassParametersVal)]
+		internal static void onDebugHook_CL_loadComputer(string filename, bool noAddNetmap, bool noInitDaemons) {
+			DebugLogger.Log(NodeLoad, $"Loading computer '{filename}'");
+		}
+
 		#region Game Integration
 
 		[Patch(typeof(Program), "Main",
