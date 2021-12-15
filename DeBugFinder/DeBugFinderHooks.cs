@@ -417,10 +417,50 @@ namespace DeBugFinder {
 		internal static void onDebugHook_PF_addFlags(string flag) {
 			DebugLogger.Log(Flags, $"Adding flag '{flag}'");
 		}
-
+		
 		[Patch(typeof(ProgressionFlags), "RemoveFlag", flags: InjectFlags.PassParametersVal)]
 		internal static void onDebugHook_PF_removeFlags(string flag) {
 			DebugLogger.Log(Flags, $"Removing flag '{flag}'");
+		}
+
+		[Patch(typeof(MusicManager), "playSong")]
+		internal static void onDebugHook_MM_playSong() {
+			DebugLogger.Log(Music, "Started playing music.");
+		}
+
+		[Patch(typeof(MusicManager), "toggleMute")]
+		internal static void onDebugHook_MM_toggleMute() {
+			DebugLogger.Log(Music, $"Toggling mute state (to {!MusicManager.isMuted}");
+		}
+
+		[Patch(typeof(MusicManager), "setIsMuted", flags: InjectFlags.PassParametersVal)]
+		internal static void onDebugHook_MM_setIsMuted(bool mute) {
+			DebugLogger.Log(Music, $"Setting mute state to {mute}");
+		}
+
+		[Patch(typeof(MusicManager), "stop")]
+		internal static void onDebugHook_MM_stop() {
+			DebugLogger.Log(Music, "Stopped music.");
+		}
+
+		[Patch(typeof(MusicManager), "playSongImmediatley", flags: InjectFlags.PassParametersVal)]
+		internal static void onDebugHook_MM_playSongImmediatley(string songName) {
+			DebugLogger.Log(Music, $"Swapped immediately to '{songName}'.");
+		}
+
+		[Patch(typeof(MusicManager), "loadAsCurrentSong", flags: InjectFlags.PassParametersVal)]
+		internal static void onDebugHook_MM_loadAsCurrentSong(string songName) {
+			DebugLogger.Log(Music, $"Loading '{songName}' as current song.");
+		}
+
+		[Patch(typeof(MusicManager), "loadAsCurrentSongUnsafe", flags: InjectFlags.PassParametersVal)]
+		internal static void onDebugHook_MM_loadAsCurrentSongUnsafe(string songName) {
+			DebugLogger.Log(Music, $"Loading '{songName}' as current song (dangerously).");
+		}
+
+		[Patch(typeof(MusicManager), "transitionToSong", flags: InjectFlags.PassParametersVal)]
+		internal static void onDebugHook_MM_transitionToSong(string songName) {
+			DebugLogger.Log(Music, $"Transitioning to '{songName}");
 		}
 
 		#region Game Integration

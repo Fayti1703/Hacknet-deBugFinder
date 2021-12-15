@@ -94,6 +94,18 @@ namespace DeBugFinder {
 		 * <see cref="Hacknet.ProgressionFlags.AddFlag"/>
 		 * <see cref="Hacknet.ProgressionFlags.RemoveFlag"/>
 		 */
-		Flags
+		Flags,
+		/**
+		 * Music starts, stops, song changes.
+		 * <see cref="Hacknet.MusicManager.playSong" />
+		 * <see cref="Hacknet.MusicManager.toggleMute" />
+		 * <see cref="Hacknet.MusicManager.setIsMuted" />
+		 * <see cref="Hacknet.MusicManager.stop" />
+		 * <see cref="Hacknet.MusicManager.playSongImmediatley" />
+		 * <see cref="Hacknet.MusicManager.loadAsCurrentSong" />
+		 * <see cref="Hacknet.MusicManager.loadAsCurrentSongUnsafe" />
+		 * <see cref="Hacknet.MusicManager.transitionToSong" />
+		 */
+		Music
 	}
 }
