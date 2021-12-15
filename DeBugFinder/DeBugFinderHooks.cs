@@ -66,7 +66,7 @@ namespace DeBugFinder {
 		)]
 		internal static bool onDebugHook_AM_isComplete(ActiveMission self, out bool ret, List<string> additionalDetails) {
 			ret = true;
-			foreach (MisisonGoal goal in self.goals.Where(goal => !goal.isComplete(additionalDetails))) {
+			foreach(MisisonGoal goal in self.goals.Where(goal => !goal.isComplete(additionalDetails))) {
 				DebugLogger.Log(MissionComplete, $"A {goal.GetType().Name} goal prevented mission completion.");
 				ret = false;
 				break;
@@ -98,7 +98,7 @@ namespace DeBugFinder {
 
 			string[] flags = self.requiredFlags.Split(Utils.commaDelim, StringSplitOptions.RemoveEmptyEntries);
 			DebugLogger.Log(HasFlags, "HasFlags checking against flags: " + string.Join(",", flags));
-			foreach (string flag in flags.Where(flag => !os.Flags.HasFlag(flag))) {
+			foreach(string flag in flags.Where(flag => !os.Flags.HasFlag(flag))) {
 				DebugLogger.Log(HasFlags, $"HasFlags FAILED: Flag {flag.formatForLog()} not present.");
 				retVal = false;
 				return true;
@@ -125,13 +125,13 @@ namespace DeBugFinder {
 				DebugLogger.Log(ActionLoadDetailDetail,
 					$"Looping over elements: {reader.toLogString()} / endKeyName = {endKeyName}"
 				);
-				if (reader.EOF) {
+				if(reader.EOF) {
 					DebugLogger.Log(ActionLoadDetailDetail, "Reader hit EOF.");
 					return false;
 				}
 
-				if (reader.Name != endKeyName) return true;
-				if (reader.IsStartElement()) return true;
+				if(reader.Name != endKeyName) return true;
+				if(reader.IsStartElement()) return true;
 				DebugLogger.Log(ActionLoadDetailDetail, "Found end key name.");
 				return false;
 			}
@@ -140,10 +140,10 @@ namespace DeBugFinder {
 			retVal.Condition = SerializableCondition.Deserialize(rdr,
 				(reader, endKeyName) => {
 					/* first read loop */
-					while (true) {
+					while(true) {
 						DebugLogger.Log(ActionLoadDetailDetail, $"Looking for first action: {reader.toLogString()}");
-						if (reader.EOF) break;
-						if (reader.NodeType == XmlNodeType.Comment || reader.NodeType == XmlNodeType.Whitespace) {
+						if(reader.EOF) break;
+						if(reader.NodeType == XmlNodeType.Comment || reader.NodeType == XmlNodeType.Whitespace) {
 							DebugLogger.Log(ActionLoadDetailDetail, "Ignoring comment/whitespace node");
 							reader.Read();
 							continue;
@@ -152,7 +152,7 @@ namespace DeBugFinder {
 						break;
 					}
 
-					while (innerWhileCondition(reader, endKeyName)) {
+					while(innerWhileCondition(reader, endKeyName)) {
 						SerializableAction action = SerializableAction.Deserialize(reader);
 						actionSet.Actions.Add(action);
 						do {
@@ -163,7 +163,7 @@ namespace DeBugFinder {
 							DebugLogger.Log(ActionLoadDetailDetail,
 								$"Preparing for next element post: {reader.toLogString()}"
 							);
-						} while (reader.NodeType == XmlNodeType.Whitespace || reader.NodeType == XmlNodeType.Comment);
+						} while(reader.NodeType == XmlNodeType.Whitespace || reader.NodeType == XmlNodeType.Comment);
 					}
 				}
 			);
@@ -200,19 +200,20 @@ namespace DeBugFinder {
 				"ShowNode",
 				"SetLock"
 			};
-			while (true) {
-				if (rdr.EOF) {
+			while(true) {
+				if(rdr.EOF) {
 					DebugLogger.Log(ActionLoadDetail, "Reader reached end of file");
 					break;
 				}
 
-				if (rdr.IsStartElement()) {
+				if(rdr.IsStartElement()) {
 					string elName = rdr.Name;
 					DebugLogger.Log(ActionLoadDetail, $"Found new {rdr.NodeType}: {elName}");
-					if (acceptables.Contains(elName)) {
+					if(acceptables.Contains(elName)) {
 						DebugLogger.Log(ActionLoadDetail, "Acceptable element! Delegating back to Hacknet...");
 						return;
 					}
+
 					DebugLogger.Log(ActionLoadDetail, "That element is unrecognized.");
 				} else
 					DebugLogger.Log(ActionLoadDetail, $"Now within {rdr.NodeType}: {rdr.Name}");
@@ -277,7 +278,6 @@ namespace DeBugFinder {
 			DebugLogger.Log(ComputerCrash, () => "HackerScript from '" + source.idName + "' shutting down because host computer crashed.");
 		}
 
-
 		[Patch(typeof(ComputerLoader), "readMission", flags: InjectFlags.PassParametersVal)]
 		internal static void onDebugHook_MissionReadTrace(string filename) {
 			DebugLogger.Log(MissionLoadTrace, () =>
@@ -291,14 +291,14 @@ namespace DeBugFinder {
 		)]
 		internal static bool onDebugHook_CPNFromDP(Computer self, out int _codePort, int displayPort) {
 			int getCodePort() {
-				if (self.PortRemapping == null)
+				if(self.PortRemapping == null)
 					return displayPort;
 				IEnumerator<KeyValuePair<int, int>> enumerator = self.PortRemapping
 					.Where(mapping => mapping.Value == displayPort)
 					.GetEnumerator();
 
-				using (enumerator) {
-					if (enumerator.MoveNext()) {
+				using(enumerator) {
+					if(enumerator.MoveNext()) {
 						return enumerator.Current.Key;
 					}
 				}
@@ -396,6 +396,7 @@ namespace DeBugFinder {
 					DebugLogger.Log(DeleteFile, "Removed one of them.");
 				} else
 					DebugLogger.Log(DeleteFile, "Removed nothing, since nothing was present.");
+
 				List<FileEntry> postFileEntries = folderAtPath.files.FindAll(x => x.name == self.FileName);
 				DebugLogger.Log(DeleteFile, $"POST: Found {postFileEntries.Count} files matching  '{self.FilePath}'/'{self.FileName}'");
 			} catch(Exception e) {
