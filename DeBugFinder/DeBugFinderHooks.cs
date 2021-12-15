@@ -8,11 +8,14 @@ using DeBugFinder.Attribute;
 using DeBugFinder.Util;
 using Hacknet;
 using Hacknet.Effects;
+using Hacknet.Extensions;
 using Hacknet.Factions;
 using Hacknet.Gui;
 using Hacknet.Misc;
 using Hacknet.Mission;
+using Hacknet.Screens;
 using Microsoft.Xna.Framework;
+using Microsoft.Xna.Framework.Graphics;
 using static DeBugFinder.Attribute.PatchAttribute;
 using static DeBugFinder.DebugTag;
 
@@ -525,6 +528,46 @@ namespace DeBugFinder {
 		[Patch(typeof(OS), "Update", flags: InjectFlags.PassParametersVal)]
 		internal static void onUpdateGame(GameTime deltaT, bool unfocused, bool covered) {
 			NearbyNodeOffsetViewer.onUpdate(deltaT);
+		}
+
+		/* ideal way to do this requires a *little* bit more IL fuckery */
+		[Patch(typeof(ExtensionsMenuScreen), "DrawExtensionList", flags: InjectFlags.ModifyReturn | InjectFlags.PassParametersVal | InjectFlags.PassInvokingInstance)]
+		internal static bool onExtButtonDraw(ExtensionsMenuScreen self, out Vector2 retval, Vector2 drawpos, Rectangle dest, SpriteBatch sb) {
+			if (self.HasLoaded)
+			{
+				Rectangle fullscreen = Utils.GetFullscreen();
+				for (int scrollStartIndex = self.ScrollStartIndex; scrollStartIndex <= self.Extensions.Count; ++scrollStartIndex)
+				{
+					if (drawpos.Y + 120.0 + 20.0 >= fullscreen.Height || self.ScrollStartIndex > 0 && scrollStartIndex == self.Extensions.Count)
+					{
+						const int height = 20;
+						const int num = (50 - height * 2) / 4;
+						if (Button.doButton(790001 + scrollStartIndex, (int) drawpos.X, (int) drawpos.Y + num, 450, height, "   ^   ", self.ScrollStartIndex > 0 ? MainMenu.buttonColor : Color.Black) && self.ScrollStartIndex > 0)
+							--self.ScrollStartIndex;
+						bool flag = scrollStartIndex <= self.Extensions.Count - 1;
+						if (Button.doButton(790101 + scrollStartIndex + 1, (int) drawpos.X, (int) drawpos.Y + height + num + num + 2, 450, height, "   v   ", flag ? MainMenu.buttonColor : Color.Black) && flag)
+							++self.ScrollStartIndex;
+						drawpos.Y += 55f;
+						break;
+					}
+
+					if(scrollStartIndex >= self.Extensions.Count) continue;
+					ExtensionInfo extension = self.Extensions[scrollStartIndex];
+					DirectoryInfo containingDir = new DirectoryInfo(extension.FolderPath);
+					if (Button.doButton(780001 + scrollStartIndex, (int) drawpos.X, (int) drawpos.Y, 450, 50, extension.Name + "  ://./" + containingDir.Name + "/", Color.White))
+						self.ActivateExtensionPage(extension);
+					drawpos.Y += 55f;
+				}
+			}
+			else
+			{
+				TextItem.doFontLabel(drawpos, LocaleTerms.Loc("Loading..."), GuiData.font, Color.White, dest.Width, 20f);
+				drawpos.Y += 55f;
+			}
+			if (!string.IsNullOrWhiteSpace(self.LoadErrors))
+				TextItem.doFontLabel(drawpos + new Vector2(0.0f, 30f), self.LoadErrors, GuiData.smallfont, new Color?(Color.Red));
+			retval = drawpos;
+			return true;
 		}
 
 		[Patch(typeof(MainMenu), "DrawBackgroundAndTitle",

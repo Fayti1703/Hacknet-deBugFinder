@@ -20,5 +20,11 @@
 		<type name="DelayableActionSystem">
 			<field name="EncryptionPass" access="internal" />
 		</type>
+		<namespace name="Screens">
+			<type name="ExtensionsMenuScreen">
+				<field access="internal" name="HasLoaded" />
+				<method access="internal" name="ActivateExtensionPage" />
+			</type>
+		</namespace>
 	</namespace>
 </PatcherCommands>
