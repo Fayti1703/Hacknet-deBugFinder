@@ -31,13 +31,13 @@ namespace DeBugFinder {
 			DebugLogger.Log(HacknetError, text);
 		}
 
-		[Patch(typeof(OS), "Draw", ilIndex: 320, flags: InjectFlags.PassLocals, localIDs: new[] { 1 })]
-		public static void onDebugHook_osDrawCatch(ref Exception ex) {
+		[Patch(typeof(OS), "Draw", ilIndex: 320, localIDs: new[] { 1 })]
+		public static void onDebugHook_osDrawCatch(Exception ex) {
 			DebugLogger.Log(HacknetError, Utils.GenerateReportFromException(ex));
 		}
 
-		[Patch(typeof(OS), "Update", ilIndex: 800, flags: InjectFlags.PassLocals, localIDs: new[] { 4 })]
-		public static void onDebugHook_osUpdateCatch(ref Exception ex) {
+		[Patch(typeof(OS), "Update", ilIndex: 800, localIDs: new[] { 4 })]
+		public static void onDebugHook_osUpdateCatch(Exception ex) {
 			DebugLogger.Log(HacknetError, Utils.GenerateReportFromException(ex));
 		}
 
@@ -48,10 +48,9 @@ namespace DeBugFinder {
 
 		[Patch(typeof(ComputerLoader), "readMission",
 			ilIndex: -4,
-			flags: InjectFlags.PassLocals,
 			localIDs: new[] {2}
 		)]
-		public static void onDebugHook_MissionRead(ref ActiveMission mission) {
+		public static void onDebugHook_MissionRead(ActiveMission mission) {
 			DebugLogger.Log(MissionLoad, $"Loaded Mission '{mission.reloadGoalsSourceFile}'.");
 			DebugLogger.Log(MissionLoad,
 				$"startMission = {mission.startFunctionName.formatForLog()} / {mission.startFunctionValue}"
@@ -234,7 +233,6 @@ namespace DeBugFinder {
 
 		[Patch(typeof(ExtensionTests), "TestExtensionForRuntime",
 			ilIndex: -1,
-			flags: InjectFlags.PassLocals,
 			localIDs: new[] {1}
 		)]
 		public static void onDebugHook_testComplete(ref string retVal) {
@@ -274,13 +272,12 @@ namespace DeBugFinder {
 			);
 		}
 
-		[Patch(typeof(HackerScriptExecuter), "executeThreadedScript", ilIndex: 40, flags: InjectFlags.PassLocals, localIDs: new[] { 3 })]
-		public static void onDebugHook_HSE_CrashCheck(ref Computer _source) {
-			Computer source = _source;
+		[Patch(typeof(HackerScriptExecuter), "executeThreadedScript", ilIndex: 40, localIDs: new[] { 3 })]
+		public static void onDebugHook_HSE_CrashCheck(Computer source) {
 			DebugLogger.Log(ComputerCrash, () => "HackerScript from '" + source.idName + "' shutting down because host computer crashed.");
 		}
 
-		
+
 		[Patch(typeof(ComputerLoader), "readMission", flags: InjectFlags.PassParametersVal)]
 		public static void onDebugHook_MissionReadTrace(string filename) {
 			DebugLogger.Log(MissionLoadTrace, () => 
@@ -320,10 +317,9 @@ namespace DeBugFinder {
 		[Patch(
 			typeof(RunnableConditionalActions), "Update",
 			ilIndex: 39,
-			flags: InjectFlags.PassLocals,
 			localIDs: new[] { 1, 2 }
 		)]
-		public static void onDebugHook_RCA_Update(ref SerializableConditionalActionSet setToTrigger, ref int actionIndex) {
+		public static void onDebugHook_RCA_Update(ref SerializableConditionalActionSet setToTrigger, int actionIndex) {
 			SerializableAction actionToTrigger = setToTrigger.Actions[actionIndex];
 			DebugLogger.Log(ActionExec, $"Triggering '{actionToTrigger.GetType().Name}' Action from Condition hit.");
 		}
@@ -331,20 +327,18 @@ namespace DeBugFinder {
 		[Patch(
 			typeof(FastDelayableActionSystem), "Update",
 			ilIndex: 37,
-			flags: InjectFlags.PassLocals,
 			localIDs: new[] { 2 }
 		)]
 		public static void onDebugHook_FDAS_Update(ref SerializableAction actionToTrigger) {
 			DebugLogger.Log(ActionExec, $"Triggering '{actionToTrigger.GetType().Name}' Action from FastDelayHost.");
 		}
-		
+
 		[Patch(
 			typeof(DelayableActionSystem), "Update",
 			ilIndex: 47,
-			flags: InjectFlags.PassLocals,
 			localIDs: new[] { 4 }
 		)]
-		public static void onDebugHook_DAS_Update(ref string encryptedData) {
+		public static void onDebugHook_DAS_Update(string encryptedData) {
 			if(!DebugLogger.isEnabled(ActionExec)) return; /* optimize */
 			string[] decryptData = FileEncrypter.DecryptString(encryptedData, DelayableActionSystem.EncryptionPass);
 			Stream dataStream = Utils.GenerateStreamFromString(decryptData[2]);
@@ -357,7 +351,7 @@ namespace DeBugFinder {
 		[Patch(
 			typeof(CustomFactionAction), "Trigger",
 			ilIndex: 4,
-			flags: InjectFlags.PassInvokingInstance | InjectFlags.PassLocals,
+			flags: InjectFlags.PassInvokingInstance,
 			localIDs: new[] { 0 }
 		)]
 		public static void onDebugHook_CFA_Trigger(CustomFactionAction self, ref int actionIndex) {
@@ -384,10 +378,10 @@ namespace DeBugFinder {
 		[Patch(
 			typeof(SADeleteFile), "Trigger",
 			ilIndex: 17,
-			flags: InjectFlags.PassInvokingInstance | InjectFlags.ModifyReturn | InjectFlags.PassLocals,
+			flags: InjectFlags.PassInvokingInstance | InjectFlags.ModifyReturn,
 			localIDs: new[] { 0, 1 }
 		)]
-		public static bool onDebugHook_SADF_Trigger(SADeleteFile self, ref OS os, ref Computer targetComputer) {
+		public static bool onDebugHook_SADF_Trigger(SADeleteFile self, OS os, Computer targetComputer) {
 			try {
 				Folder folderAtPath = Programs.getFolderAtPath(self.FilePath, os, targetComputer.files.root, true);
 				if(folderAtPath == null) {
@@ -416,13 +410,14 @@ namespace DeBugFinder {
 
 		[Patch(typeof(ProgramRunner), "ExecuteProgram",
 			ilIndex: 13,
-			flags: InjectFlags.PassParametersVal | InjectFlags.ModifyReturn | InjectFlags.PassLocals,
+			flags: InjectFlags.PassParametersVal | InjectFlags.ModifyReturn,
 			localIDs: new[] {1}
 		)]
 		public static bool onRunProgram(
-			ref bool disconnects, ref bool returnFlag, object osObj, string[] args
+			out bool returnFlag, object osObj, string[] args, ref bool disconnects
 		) {
-			if (!DebuggingCommands.isValidCommand(args[0])) return false;
+			returnFlag = false;
+			if(!DebuggingCommands.isValidCommand(args[0])) return false;
 			DebuggingCommands.runCommand(args[0], args.Skip(1).ToArray());
 			disconnects = returnFlag = false;
 			return true;
@@ -440,7 +435,7 @@ namespace DeBugFinder {
 
 		[Patch(typeof(MainMenu), "DrawBackgroundAndTitle",
 			ilIndex: 7,
-			flags: InjectFlags.PassInvokingInstance | InjectFlags.ModifyReturn | InjectFlags.PassLocals,
+			flags: InjectFlags.PassInvokingInstance | InjectFlags.ModifyReturn,
 			localIDs: new[] {0}
 		)]
 		public static bool onDrawMainMenuTitles(MainMenu self, out bool result, ref Rectangle dest) {

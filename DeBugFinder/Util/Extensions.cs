@@ -81,5 +81,37 @@ namespace DeBugFinder.Util {
 
 		public static T LastOrNull<T>(this ICollection<T> col)
 			=> col.IsEmpty() ? default : col.Last();
+
+
+		public readonly struct Indexed<T> {
+			public readonly int index;
+			public readonly T value;
+
+			public Indexed(int index, T value) {
+				this.index = index;
+				this.value = value;
+			}
+
+			public void Deconstruct(out int index, out T value) {
+				index = this.index;
+				value = this.value;
+			}
+		}
+
+		public static IEnumerable<Indexed<T>> withIndex<T>(this IEnumerable<T> collection) {
+			return collection.Select((value, index) => new Indexed<T>(index, value));
+		}
+
+		public static bool IsEquivalentTo(this TypeDefinition a, TypeDefinition b) {
+			return a.FullName == b.FullName && a.Module.IsEquivalentTo(b.Module);
+		}
+
+		public static bool IsEquivalentTo(this ModuleDefinition a, ModuleDefinition b) {
+			return a.Name == b.Name && a.Assembly.IsEquivalentTo(b.Assembly);
+		}
+
+		public static bool IsEquivalentTo(this AssemblyDefinition a, AssemblyDefinition b) {
+			return a.FullName == b.FullName;
+		}
 	}
 }

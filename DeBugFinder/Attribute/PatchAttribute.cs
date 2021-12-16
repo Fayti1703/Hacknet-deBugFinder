@@ -11,17 +11,11 @@ namespace DeBugFinder.Attribute {
 	public class PatchAttribute : System.Attribute {
 		[Flags]
 		public enum InjectFlags {
-			None = 0x0,
-			PassTag = 0x1,
-			PassInvokingInstance = 0x2,
-			ModifyReturn = 0x4,
-			PassLocals = 0x8,
-			PassFields = 0x10,
-			PassParametersVal = 0x20,
-			PassParametersRef = 0x40,
-			PassStringTag = 0x80,
-			All_Val = 0x3E,
-			All_Ref = 0x5E
+			None = 0,
+			PassInvokingInstance = 0x01,
+			ModifyReturn = 0x02,
+			PassParametersVal = 0x04,
+			PassParametersRef = 0x08
 		}
 
 		public readonly Type TargetType;
@@ -29,7 +23,7 @@ namespace DeBugFinder.Attribute {
 		public readonly Type[]? MethodArgs;
 		public readonly int ILIndex;
 		public readonly bool AfterInstruction;
-		public readonly int Flags;
+		public readonly InjectFlags Flags;
 		public readonly int[]? LocalIDs;
 
 		public PatchAttribute(
@@ -42,7 +36,7 @@ namespace DeBugFinder.Attribute {
 			this.MethodArgs = methodArgs;
 			this.ILIndex = ilIndex;
 			this.AfterInstruction = afterInstruction;
-			this.Flags = (int)flags;
+			this.Flags = flags;
 			this.LocalIDs = localIDs;
 		}
 
