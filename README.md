@@ -6,7 +6,7 @@ Hacknet Extension debugging tool based on [Pathfinder](https://github.com/Arkhis
 
 # Usage
 
-Six commands have been added to the in-game terminal:
+Eight commands have been added to the in-game terminal:
 * `deccode`:
     Prints the internal code value used in DEC encryption for each string provided.
 * `detags`: 
@@ -44,6 +44,10 @@ Six commands have been added to the in-game terminal:
         * `<total>`: `total` attribute.
         * `[extra]`: `extraDistance` attribute. Defaults to `0`.
     * `nodeoffset clear-debug`: Clear the "attempted positions" list, rendered with `launchopt nodepos on`
+* `shutdown`:
+    Quit the current session, as if you clicked "Exit to Menu" on the "Quit HacknetOS?" popup. Save before you do this.
+* `vmexit`:
+    Quits the game entirely. Yes, from directly within a session. **Save before you do this.**
     
 
 ## Debugging Tags
@@ -63,11 +67,14 @@ This tag logs all (successfully) loaded missions. The output format is as follow
 > startMission = &lt;missionStart function&gt; / &lt;missionStart value&gt;<br>
 > endMission = &lt;missionEnd function&gt; / &lt;missionEnd value&gt;
 
-### MissionComplete
+### MissionGoal
 This tag logs unsuccessful mission completions caused by goals,
 and the specific goal type causing them to fail.
 Note that for missions with `activeCheck="true"`, a mission completion is attempted *every frame*, 
 which **may result in some significant log spam**. Use with caution.
+
+## MissionComplete
+This tag logs *successful* mission completions. Unlike the above tag, it will only fire once per mission.
 
 ### SenderVerify
 This tag logs unsuccessful mission completions caused by sender verification.<br>
@@ -117,3 +124,21 @@ Capturing the stack trace is a rather slow operation, so **expect performance to
 
 ### PortUnmapping
 This tag logs the result of the displayed port to "code port" conversion whenever it happens.
+
+### ActionExec
+This tag logs any and all actions that triggered to run or enqueued on a DelayHost.
+Depending on how extensively an Extension uses Actions, **expect log spam**.
+
+### DeleteFile
+This tag logs some extra information about the `DeleteFile` action, mainly how many files matched the criteria and how many were found afterwards.
+Yes, you can have more than one file with a given name. *Please* don't abuse this information.
+
+### NodeLoad
+This tag logs when what node is loaded.
+
+### Flags
+This tags logs any and all flag additions and removals.
+
+### Music
+This tag logs changes to the game's music. By which I mean *any* changes. 
+Loading songs, transitioning, muting, stopping, playing...
