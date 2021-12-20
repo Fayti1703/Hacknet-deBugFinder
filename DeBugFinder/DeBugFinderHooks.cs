@@ -89,7 +89,7 @@ namespace DeBugFinder {
 			flags: InjectFlags.ModifyReturn | InjectFlags.PassInvokingInstance | InjectFlags.PassParametersVal
 		)]
 		public static bool onDebugHookSCHF_Check(SCHasFlags self, out bool retVal, object os_obj) {
-			var os = (OS) os_obj;
+			OS os = (OS) os_obj;
 			if (string.IsNullOrWhiteSpace(self.requiredFlags)) {
 				DebugLogger.Log(HasFlags, "HasFlags SUCCEEDED: no flags required. lol.");
 				retVal = true;
@@ -116,10 +116,10 @@ namespace DeBugFinder {
 		}
 
 		[Patch(typeof(SerializableConditionalActionSet), "Deserialize",
-			flags: InjectFlags.PassParametersRef | InjectFlags.ModifyReturn
+			flags: InjectFlags.PassParametersVal | InjectFlags.ModifyReturn
 		)]
 		public static bool onDebugHook_SCAS_Deserialize(
-			out SerializableConditionalActionSet retVal, ref XmlReader rdr
+			out SerializableConditionalActionSet retVal, XmlReader rdr
 		) {
 			static bool innerWhileCondition(XmlReader reader, string endKeyName) {
 				DebugLogger.Log(ActionLoadDetailDetail,
@@ -172,7 +172,7 @@ namespace DeBugFinder {
 
 		[Patch(typeof(SerializableAction), "Deserialize", flags: InjectFlags.PassParametersRef)]
 		public static void onDebugHook_SA_Deserialize(ref XmlReader rdr) {
-			var acceptables = new HashSet<string> {
+			HashSet<string> acceptables = new HashSet<string> {
 				"LoadMission",
 				"RunFunction",
 				"AddAsset",
@@ -280,7 +280,7 @@ namespace DeBugFinder {
 
 		[Patch(typeof(ComputerLoader), "readMission", flags: InjectFlags.PassParametersVal)]
 		public static void onDebugHook_MissionReadTrace(string filename) {
-			DebugLogger.Log(MissionLoadTrace, () => 
+			DebugLogger.Log(MissionLoadTrace, () =>
 				$"Mission Load '{filename}' Triggered:\n" + new StackTrace(3)
 			);
 		}
@@ -289,7 +289,7 @@ namespace DeBugFinder {
 			typeof(Computer), "GetCodePortNumberFromDisplayPort",
 			flags: InjectFlags.ModifyReturn | InjectFlags.PassParametersVal | InjectFlags.PassInvokingInstance
 		)]
-		public static bool onDebugHook_CPNFromDP(Computer self, out int _codePort, int displayPort) {	
+		public static bool onDebugHook_CPNFromDP(Computer self, out int _codePort, int displayPort) {
 			int getCodePort() {
 				if (self.PortRemapping == null)
 					return displayPort;
@@ -307,9 +307,9 @@ namespace DeBugFinder {
 			}
 
 			int codePort = getCodePort();
-			
+
 			DebugLogger.Log(PortUnmapping, $"Mapped display port {displayPort} to code port {codePort}");
-			
+
 			_codePort = codePort;
 			return true;
 		}
@@ -358,7 +358,7 @@ namespace DeBugFinder {
 			SerializableAction actionToTrigger = self.TriggerActions[actionIndex];
 			DebugLogger.Log(ActionExec, $"Triggering '{actionToTrigger.GetType().Name}' Action from CustomFactionAction.");
 		}
-		
+
 		[Patch(
 			typeof(DelayableActionSystem), "AddAction",
 			flags: InjectFlags.PassParametersVal
@@ -434,11 +434,10 @@ namespace DeBugFinder {
 		}
 
 		[Patch(typeof(MainMenu), "DrawBackgroundAndTitle",
-			ilIndex: 7,
-			flags: InjectFlags.PassInvokingInstance | InjectFlags.ModifyReturn,
-			localIDs: new[] {0}
+			ilIndex: 0,
+			flags: InjectFlags.PassInvokingInstance | InjectFlags.ModifyReturn
 		)]
-		public static bool onDrawMainMenuTitles(MainMenu self, out bool result, ref Rectangle dest) {
+		public static bool onDrawMainMenuTitles(MainMenu self, out bool result) {
 			result = true;
 			FlickeringTextEffect.DrawLinedFlickeringText(new Rectangle(180, 120, 340, 100),
 				"HACKNET",
