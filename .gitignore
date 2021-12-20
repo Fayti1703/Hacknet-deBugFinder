@@ -128,3 +128,8 @@ tools/*
 **/.idea
 
 run.sh.config
+
+# Built Binary files
+lib/DeBugFinder.dll
+lib/DeBugFinderPatcher.exe
+lib/Hacknet-deBugFinder.exe
