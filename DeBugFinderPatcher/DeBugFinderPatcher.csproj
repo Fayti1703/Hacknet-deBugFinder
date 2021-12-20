@@ -42,7 +42,7 @@
   <ItemGroup>
     <Compile Include="ArrayCursor.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="PathfinderPatcher.cs" />
+    <Compile Include="DeBugFinderPatcher.cs" />
     <Compile Include="Extensions.cs" />
     <Compile Include="TaskItem.cs" />
     <Compile Include="TaskReader.cs" />
