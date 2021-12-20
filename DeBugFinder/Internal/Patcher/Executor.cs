@@ -32,7 +32,7 @@ namespace DeBugFinder.Internal.Patcher {
 			Type hooks = typeof(DeBugFinderHooks);
 			PatchAttribute? attrib = null;
 			try {
-				foreach(MethodInfo meth in hooks.GetMethods(BindingFlags.Static | BindingFlags.Public)) {
+				foreach(MethodInfo meth in hooks.GetMethods(BindingFlags.Static | BindingFlags.NonPublic)) {
 					attrib = meth.GetFirstAttribute<PatchAttribute>();
 					if(attrib == null) continue;
 

@@ -27,22 +27,22 @@ namespace DeBugFinder {
 		public const string TitleScreenTag = "deBugFinder v0.5";
 
 		[Patch(typeof(Utils), "AppendToErrorFile", flags: InjectFlags.PassParametersVal)]
-		public static void onDebugHook_appendToErrorFile(string text) {
+		internal static void onDebugHook_appendToErrorFile(string text) {
 			DebugLogger.Log(HacknetError, text);
 		}
 
 		[Patch(typeof(OS), "Draw", ilIndex: 320, localIDs: new[] { 1 })]
-		public static void onDebugHook_osDrawCatch(Exception ex) {
+		internal static void onDebugHook_osDrawCatch(Exception ex) {
 			DebugLogger.Log(HacknetError, Utils.GenerateReportFromException(ex));
 		}
 
 		[Patch(typeof(OS), "Update", ilIndex: 800, localIDs: new[] { 4 })]
-		public static void onDebugHook_osUpdateCatch(Exception ex) {
+		internal static void onDebugHook_osUpdateCatch(Exception ex) {
 			DebugLogger.Log(HacknetError, Utils.GenerateReportFromException(ex));
 		}
 
 		[Patch(typeof(MissionFunctions), "runCommand", flags: InjectFlags.PassParametersVal)]
-		public static void onDebugHook_runFunction(int value, string name) {
+		internal static void onDebugHook_runFunction(int value, string name) {
 			DebugLogger.Log(MissionFunction, $"Running Mission function '{name}' with val {value}");
 		}
 
@@ -50,7 +50,7 @@ namespace DeBugFinder {
 			ilIndex: -4,
 			localIDs: new[] {2}
 		)]
-		public static void onDebugHook_MissionRead(ActiveMission mission) {
+		internal static void onDebugHook_MissionRead(ActiveMission mission) {
 			DebugLogger.Log(MissionLoad, $"Loaded Mission '{mission.reloadGoalsSourceFile}'.");
 			DebugLogger.Log(MissionLoad,
 				$"startMission = {mission.startFunctionName.formatForLog()} / {mission.startFunctionValue}"
@@ -64,7 +64,7 @@ namespace DeBugFinder {
 			flags: InjectFlags.PassInvokingInstance | InjectFlags.PassParametersVal |
 			InjectFlags.ModifyReturn
 		)]
-		public static bool onDebugHook_AM_isComplete(ActiveMission self, out bool ret, List<string> additionalDetails) {
+		internal static bool onDebugHook_AM_isComplete(ActiveMission self, out bool ret, List<string> additionalDetails) {
 			ret = true;
 			foreach (MisisonGoal goal in self.goals.Where(goal => !goal.isComplete(additionalDetails))) {
 				DebugLogger.Log(MissionComplete, $"A {goal.GetType().Name} goal prevented mission completion.");
@@ -78,7 +78,7 @@ namespace DeBugFinder {
 		[Patch(typeof(MailServer), "attemptCompleteMission",
 			flags: InjectFlags.PassInvokingInstance | InjectFlags.PassParametersVal
 		)]
-		public static void onDebugHook_MS_attemptCompleteMission(MailServer self, ActiveMission mission) {
+		internal static void onDebugHook_MS_attemptCompleteMission(MailServer self, ActiveMission mission) {
 			if (mission.ShouldIgnoreSenderVerification || mission.email.sender == self.emailData[1]) return;
 			DebugLogger.Log(SenderVerify, $"Mission '{mission.reloadGoalsSourceFile}' failed sender verification!");
 			DebugLogger.Log(SenderVerify, "email says: " + self.emailData[1]);
@@ -88,7 +88,7 @@ namespace DeBugFinder {
 		[Patch(typeof(SCHasFlags), "Check",
 			flags: InjectFlags.ModifyReturn | InjectFlags.PassInvokingInstance | InjectFlags.PassParametersVal
 		)]
-		public static bool onDebugHookSCHF_Check(SCHasFlags self, out bool retVal, object os_obj) {
+		internal static bool onDebugHookSCHF_Check(SCHasFlags self, out bool retVal, object os_obj) {
 			OS os = (OS) os_obj;
 			if (string.IsNullOrWhiteSpace(self.requiredFlags)) {
 				DebugLogger.Log(HasFlags, "HasFlags SUCCEEDED: no flags required. lol.");
@@ -110,7 +110,7 @@ namespace DeBugFinder {
 		}
 
 		[Patch(typeof(RunnableConditionalActions), "LoadIntoOS", flags: InjectFlags.PassParametersVal)]
-		public static void onDebugHookRCA_LoadIntoOS(string filepath, object OSobj) {
+		internal static void onDebugHookRCA_LoadIntoOS(string filepath, object OSobj) {
 			string truePath = LocalizedFileLoader.GetLocalizedFilepath(Utils.GetFileLoadPrefix() + filepath);
 			DebugLogger.Log(ActionLoad, $"Loading Conditional Actions File {truePath.formatForLog()} into OS.");
 		}
@@ -118,7 +118,7 @@ namespace DeBugFinder {
 		[Patch(typeof(SerializableConditionalActionSet), "Deserialize",
 			flags: InjectFlags.PassParametersVal | InjectFlags.ModifyReturn
 		)]
-		public static bool onDebugHook_SCAS_Deserialize(
+		internal static bool onDebugHook_SCAS_Deserialize(
 			out SerializableConditionalActionSet retVal, XmlReader rdr
 		) {
 			static bool innerWhileCondition(XmlReader reader, string endKeyName) {
@@ -171,7 +171,7 @@ namespace DeBugFinder {
 		}
 
 		[Patch(typeof(SerializableAction), "Deserialize", flags: InjectFlags.PassParametersRef)]
-		public static void onDebugHook_SA_Deserialize(ref XmlReader rdr) {
+		internal static void onDebugHook_SA_Deserialize(ref XmlReader rdr) {
 			HashSet<string> acceptables = new HashSet<string> {
 				"LoadMission",
 				"RunFunction",
@@ -222,12 +222,12 @@ namespace DeBugFinder {
 		}
 
 		[Patch(typeof(DelayableActionSystem), "Update", flags: InjectFlags.ModifyReturn)]
-		public static bool onDebugHook_DAS_Update() {
+		internal static bool onDebugHook_DAS_Update() {
 			return DebugLogger.isEnabled(DisableDelayProcessing);
 		}
 
 		[Patch(typeof(FastDelayableActionSystem), "Update", flags: InjectFlags.ModifyReturn)]
-		public static bool onDebugHook_FDAS_Update() {
+		internal static bool onDebugHook_FDAS_Update() {
 			return DebugLogger.isEnabled(DisableDelayProcessing);
 		}
 
@@ -235,34 +235,34 @@ namespace DeBugFinder {
 			ilIndex: -1,
 			localIDs: new[] {1}
 		)]
-		public static void onDebugHook_testComplete(ref string retVal) {
+		internal static void onDebugHook_testComplete(ref string retVal) {
 			DebugLogger.Log(WriteReport, retVal);
 		}
 
 		[Patch(typeof(OS), "saveGame")]
-		public static void onDebugHook_saveBeginThread() {
+		internal static void onDebugHook_saveBeginThread() {
 			DebugLogger.Log(SaveTrace, () => "Save thread triggered \n" + new StackTrace(3));
 		}
 
 		[Patch(typeof(OS), "threadedSaveExecute")]
-		public static void onDebugHook_saveFromThread() {
+		internal static void onDebugHook_saveFromThread() {
 			DebugLogger.Log(SaveTrace,
 				() => "Threaded save execution triggered \n" + new StackTrace(3)
 			);
 		}
 
 		[Patch(typeof(Computer), "crash", flags: InjectFlags.PassInvokingInstance)]
-		public static void onDebugHook_Comp_Crash(Computer self) {
+		internal static void onDebugHook_Comp_Crash(Computer self) {
 			DebugLogger.Log(ComputerCrash, () => $"'{self.idName}' crashed.");
 		}
 
 		[Patch(typeof(Computer), "bootupTick", ilIndex: -2, flags: InjectFlags.PassInvokingInstance)]
-		public static void onDebugHook_Comp_BootupTick(Computer self) {
+		internal static void onDebugHook_Comp_BootupTick(Computer self) {
 			DebugLogger.Log(ComputerCrash, () => $"'{self.idName}' rebooted.");
 		}
 
 		[Patch(typeof(Computer), "forkBombClients", flags: InjectFlags.PassInvokingInstance)]
-		public static void onDebugHook_Comp_fbClients(Computer self) {
+		internal static void onDebugHook_Comp_fbClients(Computer self) {
 			DebugLogger.Log(ComputerCrash,
 				() => self.os.ActiveHackers.Where(hacker => hacker.Value == self.ip)
 					.Aggregate($"'{self.idName}' is forkbombing clients.",
@@ -273,13 +273,13 @@ namespace DeBugFinder {
 		}
 
 		[Patch(typeof(HackerScriptExecuter), "executeThreadedScript", ilIndex: 40, localIDs: new[] { 3 })]
-		public static void onDebugHook_HSE_CrashCheck(Computer source) {
+		internal static void onDebugHook_HSE_CrashCheck(Computer source) {
 			DebugLogger.Log(ComputerCrash, () => "HackerScript from '" + source.idName + "' shutting down because host computer crashed.");
 		}
 
 
 		[Patch(typeof(ComputerLoader), "readMission", flags: InjectFlags.PassParametersVal)]
-		public static void onDebugHook_MissionReadTrace(string filename) {
+		internal static void onDebugHook_MissionReadTrace(string filename) {
 			DebugLogger.Log(MissionLoadTrace, () =>
 				$"Mission Load '{filename}' Triggered:\n" + new StackTrace(3)
 			);
@@ -289,7 +289,7 @@ namespace DeBugFinder {
 			typeof(Computer), "GetCodePortNumberFromDisplayPort",
 			flags: InjectFlags.ModifyReturn | InjectFlags.PassParametersVal | InjectFlags.PassInvokingInstance
 		)]
-		public static bool onDebugHook_CPNFromDP(Computer self, out int _codePort, int displayPort) {
+		internal static bool onDebugHook_CPNFromDP(Computer self, out int _codePort, int displayPort) {
 			int getCodePort() {
 				if (self.PortRemapping == null)
 					return displayPort;
@@ -319,7 +319,7 @@ namespace DeBugFinder {
 			ilIndex: 39,
 			localIDs: new[] { 1, 2 }
 		)]
-		public static void onDebugHook_RCA_Update(ref SerializableConditionalActionSet setToTrigger, int actionIndex) {
+		internal static void onDebugHook_RCA_Update(ref SerializableConditionalActionSet setToTrigger, int actionIndex) {
 			SerializableAction actionToTrigger = setToTrigger.Actions[actionIndex];
 			DebugLogger.Log(ActionExec, $"Triggering '{actionToTrigger.GetType().Name}' Action from Condition hit.");
 		}
@@ -329,7 +329,7 @@ namespace DeBugFinder {
 			ilIndex: 37,
 			localIDs: new[] { 2 }
 		)]
-		public static void onDebugHook_FDAS_Update(ref SerializableAction actionToTrigger) {
+		internal static void onDebugHook_FDAS_Update(ref SerializableAction actionToTrigger) {
 			DebugLogger.Log(ActionExec, $"Triggering '{actionToTrigger.GetType().Name}' Action from FastDelayHost.");
 		}
 
@@ -338,7 +338,7 @@ namespace DeBugFinder {
 			ilIndex: 47,
 			localIDs: new[] { 4 }
 		)]
-		public static void onDebugHook_DAS_Update(string encryptedData) {
+		internal static void onDebugHook_DAS_Update(string encryptedData) {
 			if(!DebugLogger.isEnabled(ActionExec)) return; /* optimize */
 			string[] decryptData = FileEncrypter.DecryptString(encryptedData, DelayableActionSystem.EncryptionPass);
 			Stream dataStream = Utils.GenerateStreamFromString(decryptData[2]);
@@ -354,7 +354,7 @@ namespace DeBugFinder {
 			flags: InjectFlags.PassInvokingInstance,
 			localIDs: new[] { 0 }
 		)]
-		public static void onDebugHook_CFA_Trigger(CustomFactionAction self, ref int actionIndex) {
+		internal static void onDebugHook_CFA_Trigger(CustomFactionAction self, ref int actionIndex) {
 			SerializableAction actionToTrigger = self.TriggerActions[actionIndex];
 			DebugLogger.Log(ActionExec, $"Triggering '{actionToTrigger.GetType().Name}' Action from CustomFactionAction.");
 		}
@@ -363,7 +363,7 @@ namespace DeBugFinder {
 			typeof(DelayableActionSystem), "AddAction",
 			flags: InjectFlags.PassParametersVal
 		)]
-		public static void onDebugHook_DAS_AddAction(SerializableAction action, float delay) {
+		internal static void onDebugHook_DAS_AddAction(SerializableAction action, float delay) {
 			DebugLogger.Log(ActionExec, $"Adding '{action.GetType().Name}' Action with {delay}s Delay to DelayHost.");
 		}
 
@@ -371,7 +371,7 @@ namespace DeBugFinder {
 			typeof(FastDelayableActionSystem), "AddAction",
 			flags: InjectFlags.PassParametersVal
 		)]
-		public static void onDebugHook_FDAS_AddAction(SerializableAction action, float delay) {
+		internal static void onDebugHook_FDAS_AddAction(SerializableAction action, float delay) {
 			DebugLogger.Log(ActionExec, $"Adding '{action.GetType().Name}' Action with {delay}s Delay to FastDelayHost.");
 		}
 
@@ -381,7 +381,7 @@ namespace DeBugFinder {
 			flags: InjectFlags.PassInvokingInstance | InjectFlags.ModifyReturn,
 			localIDs: new[] { 0, 1 }
 		)]
-		public static bool onDebugHook_SADF_Trigger(SADeleteFile self, OS os, Computer targetComputer) {
+		internal static bool onDebugHook_SADF_Trigger(SADeleteFile self, OS os, Computer targetComputer) {
 			try {
 				Folder folderAtPath = Programs.getFolderAtPath(self.FilePath, os, targetComputer.files.root, true);
 				if(folderAtPath == null) {
@@ -413,7 +413,7 @@ namespace DeBugFinder {
 			flags: InjectFlags.PassParametersVal | InjectFlags.ModifyReturn,
 			localIDs: new[] {1}
 		)]
-		public static bool onRunProgram(
+		internal static bool onRunProgram(
 			out bool returnFlag, object osObj, string[] args, ref bool disconnects
 		) {
 			returnFlag = false;
@@ -424,12 +424,12 @@ namespace DeBugFinder {
 		}
 
 		[Patch(typeof(OS), "quitGame")]
-		public static void onQuitGame() {
+		internal static void onQuitGame() {
 			NearbyNodeOffsetViewer.onSessionStop();
 		}
 
 		[Patch(typeof(OS), "Update", flags: InjectFlags.PassParametersVal)]
-		public static void onUpdateGame(GameTime deltaT, bool unfocused, bool covered) {
+		internal static void onUpdateGame(GameTime deltaT, bool unfocused, bool covered) {
 			NearbyNodeOffsetViewer.onUpdate(deltaT);
 		}
 
@@ -437,7 +437,7 @@ namespace DeBugFinder {
 			ilIndex: 0,
 			flags: InjectFlags.PassInvokingInstance | InjectFlags.ModifyReturn
 		)]
-		public static bool onDrawMainMenuTitles(MainMenu self, out bool result) {
+		internal static bool onDrawMainMenuTitles(MainMenu self, out bool result) {
 			result = true;
 			FlickeringTextEffect.DrawLinedFlickeringText(new Rectangle(180, 120, 340, 100),
 				"HACKNET",

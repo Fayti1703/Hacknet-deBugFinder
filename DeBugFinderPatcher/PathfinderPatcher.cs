@@ -117,8 +117,6 @@ namespace DeBugFinderPatcher
             {
                 // Add DeBugFinder internal attribute hack
                 gameAssembly.AddAssemblyAttribute<InternalsVisibleToAttribute>("DeBugFinder");
-                // Remove internal visibility from types
-                gameAssembly.RemoveInternals();
 
                 // Run Patcher Tasks
                 foreach(TypeTaskItem task in TaskReader.readTaskListFile(debugfinderDir.GetFile("PatcherCommands.xml").FullName)) 
@@ -217,7 +215,6 @@ namespace DeBugFinderPatcher
 
     internal class CrossAppDomainCall : MarshalByRefObject {
         public byte[] Run(byte[] gameData) {
-
             Assembly mainDll = Assembly.Load("DeBugFinder");
             MethodInfo? executorMethod = mainDll.GetType("DeBugFinder.Internal.Patcher.Executor")
                 ?.GetMethod("Main", BindingFlags.Static | BindingFlags.NonPublic);

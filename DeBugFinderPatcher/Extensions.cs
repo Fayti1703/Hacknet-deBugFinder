@@ -86,22 +86,6 @@ namespace DeBugFinderPatcher
             ad.CustomAttributes.Add(attrib);
         }
 
-        internal static void RemoveInternals(this AssemblyDefinition ad)
-        {
-            foreach (var type in ad.MainModule.Types)
-            {
-                if (type.IsNotPublic)
-                    type.IsNotPublic = false;
-                if (!type.IsPublic)
-                    type.IsPublic = true;
-
-                /*if (type.HasFields)
-                    foreach (FieldDefinition field in type.Fields)
-                        if (field.IsPublic)
-                            field.IsAssembly = false;*/
-            }
-        }
-        
         /* File System stuff */
         public static FileInfo GetFile(this DirectoryInfo containingDirectory, string fileName) {
             return new FileInfo(containingDirectory.FullName + Path.DirectorySeparatorChar + fileName);
