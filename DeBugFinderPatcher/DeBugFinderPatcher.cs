@@ -68,7 +68,7 @@ namespace DeBugFinderPatcher {
 			DirectoryInfo debugfinderDir = new DirectoryInfo(debugfinderPath ?? ".");
 			DirectoryInfo exeDir = new DirectoryInfo(exePath ?? ".");
 			try {
-				if(!skipLaunchers) {
+				if(!skipLaunchers && !spitOutHacknetOnly) {
 					FileInfo shellLauncher = exeDir.GetFile("Hacknet");
 					if(shellLauncher.Exists) {
 						string launcherContent;
