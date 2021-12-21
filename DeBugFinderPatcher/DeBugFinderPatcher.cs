@@ -8,6 +8,7 @@ using System.Security;
 using System.Security.Permissions;
 using System.Security.Policy;
 using System.Text;
+using System.Text.RegularExpressions;
 using Mono.Cecil;
 
 namespace DeBugFinderPatcher {
@@ -77,7 +78,20 @@ namespace DeBugFinderPatcher {
 							launcherContent = reader.ReadToEnd();
 						}
 
-						launcherContent = launcherContent.Replace("Hacknet", "Hacknet-deBugFinder");
+						/* 1. Adds `TERM=xterm` so old Mono doesn't need read new terminfo files (it fails at startup in that case)
+						 * 2. Changes the launched file name to from `Hacknet.bin.<whatever>` to `Hacknet-deBugFinder.bin.<whatever>`
+						 * 3. Quotes the `$@` expansion so we don't word split arguments irrecoverably.
+						 */
+						launcherContent = Regex.Replace(launcherContent, "(\\s*)(.+?) [.]/Hacknet[.]bin(.+?) [$]@",
+							match => {
+								string indent = match.Groups[1].Captures[0].Value;
+								string prefix = match.Groups[2].Captures[0].Value;
+								string binType = match.Groups[3].Captures[0].Value;
+								if(!prefix.Contains("TERM"))
+									prefix = "TERM=xterm " + prefix;
+								return $"{indent}{prefix} Hacknet-deBugFinder.bin.{binType} \"$@\"";
+							}
+						);
 
 						using(FileStream output = exeDir.GetFile("Hacknet-deBugFilder").OpenWrite()) {
 							using StreamWriter writer = new StreamWriter(output, Encoding.UTF8);
