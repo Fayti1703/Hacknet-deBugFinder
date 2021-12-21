@@ -18,7 +18,7 @@ do_operation() {
 	unknown_op=1
 	case "$1" in
 		"init")
-			cp "$hacknet_dir"/{FNA,Steamworks.NET,AlienFXManagedWrapper3.5}.dll .;
+			cp "$hacknet_dir"/FNA.dll .;
 			;;
 		"workaround-exe")
 			cp "$hacknet_dir"/Hacknet.exe .;
