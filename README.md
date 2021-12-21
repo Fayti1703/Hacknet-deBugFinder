@@ -16,6 +16,7 @@ If you're on another platform, run the generated `HacknetDeBugFinder` (no extens
 ## Installation verification
 
 Look for this tag next to Hacknet's version information:
+
 ![The text "## deBugFinder 0.7" next to Hacknet's version information.](./.gh_res/verify-me.png)
 
 # Compiling
