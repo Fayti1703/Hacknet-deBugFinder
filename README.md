@@ -2,7 +2,93 @@
 Hacknet Extension debugging tool based on [Pathfinder](https://github.com/Arkhist/Hacknet-Pathfinder).
 
 # Installation
-(tbd)
+
+To install DeBugFinder, do the following:
+1. Obtain `DeBugFinderPatcher.exe` and `DeBugFinder.dll`.
+2. Copy both files into your Hacknet directory.
+3. Run `DeBugFinderPatcher.exe` from that directory.
+
+Assuming everything went right, you should now see a `HacknetDeBugFinder.exe` in the directory listing.
+
+If you're on Windows, simply run this file to launch Hacknet with DeBugFinder.
+If you're on another platform, run the generated `HacknetDeBugFinder` (no extension) file instead.
+
+## Installation verification
+
+Look for this tag next to Hacknet's version information:
+![The text "## deBugFinder 0.7" next to Hacknet's version information.](./.gh_res/verify-me.png)
+
+# Compiling
+
+Required to compile are the following:
+* A C# compilation setup, including `msbuild`. On Windows you can get this via [Visual Studio](https://visualstudio.microsoft.com/), on other systems it's typically included with an appropriate [Mono](https://mono-project.com) install.
+* Some way to run .Net assemblies. This may be native support (on Windows), or a Mono install.
+
+## Express compilation and installation
+Additional Requirements:
+* A text editor
+* A bash shell
+
+This procedure only works if you have a bash shell available.
+Open the `run.sh.config` file in this project, and fill in the appropriate variables:
+* `hacknet_dir` should contain the full path to your Hacknet installation.
+* `exe_prefix` should contain whatever you need to write in front of exe files to run them. On Windows, make this the empty string. On other platforms, the default (`mono`) is typically okay.
+* `builder` should contain whatever command you need to write to build `.csproj` projects. With the appropriate paths set, the default (`msbuild`) should be fine.
+* `configuration` should contain which configuration you wish to build. `Debug` is typically fine.
+
+Then, simply run this command in the project directory: `./run.sh patcher spit build patch-init copy`
+If everything went right, the last two lines should something like: (actual paths may vary.)
+```
+Writing /home/fayti1703/.steam/steam/steamapps/common/Hacknet/Hacknet-deBugFinder.exe
+'DeBugFinder.dll' -> '/home/fayti1703/.steam/steam/steamapps/common/Hacknet/DeBugFinder.dll'
+```
+Congratulations, you just:
+* Built the `patcher` from source
+* Performed a `spit` patch
+* `build`(*) the main DeBugFinder dll from source
+* `patch-init`ed your Hacknet binary
+* And `copy`ed the DeBugFinder dll to your Hacknet directory.
+
+If you change anything, you can start the command line from the relevant step instead.
+In addition, I recommend you replace the `patch-init` step with just `patch` -- the latter doesn't rewrite the launcher files (if any).
+
+For instance, if you don't change the patcher at all, `./run.sh build patch copy` only rebuilds the main DLL and goes on from there.
+
+(* yes, I know, it's 'built'. That doesn't *quite* work with the step name, though.)
+
+## Manual compilation and installation
+Additional requirements:
+* The ability to copy files
+
+This procedure should work anywhere, but requires a bit more work, especially if you do it repeatedly.
+
+Open a developer command prompt of some sort. On Windows, you should find an appropriate option in the start menu. On other platforms, a regular terminal is usually fine.
+
+(Portability note: I'll be using `mono` to prefix executables to run, and `msbuild` to prefix projects to build -- if those commands are different for your system (say you're on Windows) change them to the appropriate equivalent.
+For instance, on Windows, just leave out `mono `.
+
+Also, if at any point you see **red text**, stop. Something's gone wrong. If you can read through the error messages and fix it; do that and then continue.
+Otherwise, seek assistance from someone who does know what's going on.)
+
+1. Navigate to this project's directory in the command prompt.
+(you can easily do this by copying the path to it and pasting it into your terminal after typing `cd `.
+If you're on Windows and on the wrong drive, typing the drive letter followed by a colon, e.g. `D:`, switches to the right drive.)
+
+2. Type `msbuild DeBugFinderPatcher/DeBugFinderPatcher.csproj` to build the patcher.
+3. Type `cd lib` to enter the `lib` directory, then run `mono ./DeBugFinderPatcher.exe -exeDir %HACKNET_DIR% -spit`. Make sure to replace `%HACKNET_DIR%` with the path to your Hacknet directory.
+4. Type `msbuild ../DeBugFinder/DeBugFinder.csproj` to build the main DeBugFinder dll.
+5. Type `mono ./DeBugFinderPatcher.exe -exeDir %HACKNET_DIR%` to properly patch your Hacknet binary.
+6. Then, simply copy the `DeBugFinder.dll` file from the `lib` directory into your Hacknet directory.
+
+And you're done! That's the manual compilation process. Note that like the express compilation, if you, for instance, don't modify the patcher, you don't need to rebuild it.
+Just pick up from step 4. (but make sure you're in the `lib` directory!)
+
+For repeated builds, it may also make sense to add the argument `-nolaunch` in step 5. This skips rewriting the launcher files (if any) every patch.
+
+## Packaging
+In case you're compiling DeBugFinder to send to someone else, you only need to include the `DeBugFinderPatcher.exe` and `DeBugFinder.dll` files.
+
+Your peer only needs to complete the installation instructions above with those two files.
 
 # Usage
 
