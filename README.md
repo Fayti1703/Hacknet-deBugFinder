@@ -160,7 +160,7 @@ and the specific goal type causing them to fail.
 Note that for missions with `activeCheck="true"`, a mission completion is attempted *every frame*, 
 which **may result in some significant log spam**. Use with caution.
 
-## MissionComplete
+### MissionComplete
 This tag logs *successful* mission completions. Unlike the above tag, it will only fire once per mission.
 
 ### SenderVerify
