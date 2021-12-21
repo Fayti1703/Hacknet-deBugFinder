@@ -42,38 +42,41 @@ namespace DeBugFinderPatcher {
 			if(this.targetLevel.HasValue)
 				this.applyTypeAccess(target);
 
-			if(this.newDefaultFieldAccess.HasValue) {
+			if(this.newDefaultFieldAccess.HasValue || this.fieldModifications.Count > 0) {
 				foreach(FieldDefinition field in target.Fields) {
-					if(!this.fieldModifications.TryGetValue(field.Name, out AccessLevel newLevel))
+					if(!this.fieldModifications.TryGetValue(field.Name, out AccessLevel newLevel)) {
+						if(!this.newDefaultFieldAccess.HasValue) continue;
 						newLevel = this.newDefaultFieldAccess.Value;
+					}
+
 					field.MakeFieldAccess(newLevel);
 				}
-			} else {
-				foreach((string fieldName, AccessLevel newLevel) in this.fieldModifications) {
-					target.GetField(fieldName).MakeFieldAccess(newLevel);
-				}
 			}
 
-			if(this.newDefaultMethodAccess.HasValue) {
+			if(this.newDefaultFieldAccess.HasValue || this.methodModifications.Count > 0) {
 				foreach(MethodDefinition method in target.Methods) {
-					if(!this.methodModifications.TryGetValue(method.Name, out AccessLevel newLevel))
+					if(!this.methodModifications.TryGetValue(method.Name, out AccessLevel newLevel)) {
+						if(!this.newDefaultMethodAccess.HasValue) continue;
 						newLevel = this.newDefaultMethodAccess.Value;
+					}
+
 					method.MakeMethodAccess(newLevel);
 				}
-			} else {
-				foreach((string methodName, AccessLevel newLevel) in this.methodModifications) {
-					target.GetMethod(methodName).MakeMethodAccess(newLevel);
-				}
 			}
 
-			if(!this.newDefaultTypeAccess.HasValue && this.typeModifications.Count <= 0) return;
-			foreach(TypeDefinition type in target.NestedTypes) {
-				if(this.typeModifications.TryGetValue(type.Name, out GenericTypeTaskItem nestedTask)) {
-					if(!nestedTask.targetLevel.HasValue && this.newDefaultTypeAccess.HasValue)
-						type.MakeNestedAccess(this.newDefaultTypeAccess.Value);
-					nestedTask.execute(type);
-				} else if(this.newDefaultTypeAccess.HasValue)
-					type.MakeNestedAccess(this.newDefaultTypeAccess.Value);
+			if(this.newDefaultTypeAccess.HasValue || this.typeModifications.Count > 0) {
+				foreach(TypeDefinition nestedType in target.NestedTypes) {
+
+					bool hasTask = this.typeModifications.TryGetValue(nestedType.Name, out GenericTypeTaskItem nestedTask);
+					/* if we have a default and are not about to overwrite it anyway */
+					if(this.newDefaultTypeAccess.HasValue && (!hasTask || !nestedTask.targetLevel.HasValue)) {
+						/* apply it */
+						nestedType.MakeNestedAccess(this.newDefaultTypeAccess.Value);
+					}
+
+					if(hasTask)
+						nestedTask.execute(nestedType);
+				}
 			}
 		}
 

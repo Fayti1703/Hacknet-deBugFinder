@@ -9,7 +9,6 @@ using System.Security.Permissions;
 using System.Security.Policy;
 using System.Text;
 using Mono.Cecil;
-using Mono.Cecil.Inject;
 
 namespace DeBugFinderPatcher {
 	public enum AccessLevel {
@@ -141,7 +140,6 @@ namespace DeBugFinderPatcher {
 
 				/* load main dll's dependencies */
 				mainDllDomain.LoadAssembly(Assembly.GetAssembly(typeof(AssemblyDefinition)));
-				mainDllDomain.LoadAssembly(Assembly.GetAssembly(typeof(InjectFlags)));
 				mainDllDomain.Load(File.ReadAllBytes(debugfinderDir.GetFile("DeBugFinder.dll").FullName));
 				mainDllDomain.Load(File.ReadAllBytes(exeDir.GetFile("FNA.dll").FullName));
 				mainDllDomain.LoadAssembly(Assembly.GetExecutingAssembly());
