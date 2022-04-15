@@ -53,7 +53,7 @@ namespace DeBugFinderPatcher {
 				}
 			}
 
-			if(this.newDefaultFieldAccess.HasValue || this.methodModifications.Count > 0) {
+			if(this.newDefaultMethodAccess.HasValue || this.methodModifications.Count > 0) {
 				foreach(MethodDefinition method in target.Methods) {
 					if(!this.methodModifications.TryGetValue(method.Name, out AccessLevel newLevel)) {
 						if(!this.newDefaultMethodAccess.HasValue) continue;
