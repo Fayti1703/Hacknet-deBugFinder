@@ -93,7 +93,7 @@ namespace DeBugFinderPatcher {
 							}
 						);
 
-						using(FileStream output = exeDir.GetFile("Hacknet-deBugFilder").OpenWrite()) {
+						using(FileStream output = exeDir.GetFile("Hacknet-deBugFinder").OpenWrite()) {
 							using StreamWriter writer = new StreamWriter(output, Encoding.UTF8);
 							writer.Write(launcherContent);
 						}
