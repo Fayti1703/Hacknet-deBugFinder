@@ -89,7 +89,7 @@ namespace DeBugFinderPatcher {
 								string binType = match.Groups[3].Captures[0].Value;
 								if(!prefix.Contains("TERM"))
 									prefix = "TERM=xterm " + prefix;
-								return $"{indent}{prefix} Hacknet-deBugFinder.bin.{binType} \"$@\"";
+								return $"{indent}{prefix} Hacknet-deBugFinder.bin{binType} \"$@\"";
 							}
 						);
 
