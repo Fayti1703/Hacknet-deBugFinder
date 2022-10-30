@@ -137,9 +137,10 @@ namespace DeBugFinder.Internal.Patcher {
 			if(localsToGrab != null)
 				EmitLocalLoads(toEmit, targetMethod, injectedMethod, localsToGrab, ref paramCursor);
 
-			if(paramCursor != injectedMethod.Parameters.Count)
+			if(paramCursor != injectedMethod.Parameters.Count) {
 				throw new InjectionException(
 					$"Injection method has too many parameters. Must be {paramCursor}, got {injectedMethod.Parameters.Count}");
+			}
 
 			toEmit.Add(Instruction.Create(OpCodes.Call, targetMethod.Module.ImportReference(injectedMethod)));
 

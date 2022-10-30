@@ -127,14 +127,14 @@ namespace DeBugFinderPatcher
 
             using (reader) {
 
-                var retVal = new List<TypeTaskItem>();
+                List<TypeTaskItem> retVal = new List<TypeTaskItem>();
 
                 /* skip to (and in the loop, past) root element */
                 do {
                     reader.Read();
                 } while (reader.NodeType != Element);
 
-                var namespaceChain = new LinkedList<string>();
+                LinkedList<string> namespaceChain = new LinkedList<string>();
                 string namespaceCache = null;
 
                 while (!reader.EOF) {
@@ -152,9 +152,7 @@ namespace DeBugFinderPatcher
                                     namespaceCache = null;
                                     break;
                                 case "type":
-                                    if (namespaceCache == null) {
-                                        namespaceCache = string.Join(".", namespaceChain);
-                                    }
+                                    namespaceCache ??= string.Join(".", namespaceChain);
 
                                     retVal.Add((TypeTaskItem) readTypeTasks(namespaceCache, reader));
 

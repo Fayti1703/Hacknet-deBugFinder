@@ -302,9 +302,8 @@ namespace DeBugFinder {
 					.GetEnumerator();
 
 				using(enumerator) {
-					if(enumerator.MoveNext()) {
+					if(enumerator.MoveNext())
 						return enumerator.Current.Key;
-					}
 				}
 
 				return displayPort;
@@ -565,7 +564,7 @@ namespace DeBugFinder {
 				drawpos.Y += 55f;
 			}
 			if (!string.IsNullOrWhiteSpace(self.LoadErrors))
-				TextItem.doFontLabel(drawpos + new Vector2(0.0f, 30f), self.LoadErrors, GuiData.smallfont, new Color?(Color.Red));
+				TextItem.doFontLabel(drawpos + new Vector2(0.0f, 30f), self.LoadErrors, GuiData.smallfont, Color.Red);
 			retval = drawpos;
 			return true;
 		}

@@ -34,11 +34,11 @@ namespace DeBugFinder {
 					"on" => true,
 					"off" => false,
 					"toggle" => !val,
-					var _ => val
+					_ => val
 				};
 			}
 
-			var os = OS.currentInstance;
+			OS os = OS.currentInstance;
 			if(args.Length < 1) {
 				os.write(usage);
 				return;
@@ -79,7 +79,7 @@ namespace DeBugFinder {
 		}
 
 		private static void HubLockDump(string[] args) {
-			var os = OS.currentInstance;
+			OS os = OS.currentInstance;
 			Computer conn = os.connectedComp;
 			if(conn == null) {
 				os.write("Not connected to a node.");
