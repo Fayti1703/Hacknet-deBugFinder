@@ -27,7 +27,7 @@ namespace DeBugFinder {
 	/// </summary>
 	/// Place all functions to be hooked into Hacknet here
 	public static class DeBugFinderHooks {
-		public const string TitleScreenTag = "deBugFinder v0.7.1";
+		public const string TitleScreenTag = "deBugFinder v0.7.2";
 
 		[Patch(typeof(Utils), "AppendToErrorFile", flags: InjectFlags.PassParametersVal)]
 		internal static void onDebugHook_appendToErrorFile(string text) {
