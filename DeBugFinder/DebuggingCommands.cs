@@ -40,7 +40,7 @@ namespace DeBugFinder {
 
 			OS os = OS.currentInstance;
 			if(args.Length < 1) {
-				os.write(usage);
+				os.write("Syntax Error. Syntax: " + usage);
 				return;
 			}
 
