@@ -55,6 +55,7 @@
 		<Compile Include="Internal\Patcher\Executor.cs" />
 		<Compile Include="NearbyNodeOffsetViewer.cs" />
 		<Compile Include="Properties\AssemblyInfo.cs" />
+		<Compile Include="ThemeVarManager.cs" />
 		<Compile Include="Util\Extensions.cs" />
 		<Compile Include="Util\XmlExtensions.cs" />
 		<Compile Include="DeBugFinderHooks.cs" />

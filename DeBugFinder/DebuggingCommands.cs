@@ -22,7 +22,9 @@ namespace DeBugFinder {
 				MusicManager.stop();
 				Game1.threadsExiting = true;
 				Game1.getSingleton().Exit();
-			} }
+			} },
+			{ "getthemevar", ThemeVarManager.GetThemeVarCommand },
+			{ "setthemevar", ThemeVarManager.SetThemeVarCommand }
 		};
 
 		private static void ModifyLaunchOptions(string[] args) {
